@@ -12,15 +12,26 @@ class Settings:
     # Strip literal quotes just in case they were pasted into Railway's UI
     raw_db_url = raw_db_url.strip('"').strip("'")
     
-    # Auto-fix Railway's standard postgresql:// to use the asyncpg driver
-    if raw_db_url.startswith("postgres://"):
-        raw_db_url = raw_db_url.replace("postgres://", "postgresql+asyncpg://", 1)
-    elif raw_db_url.startswith("postgresql://"):
-        raw_db_url = raw_db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    if raw_db_url:
+        from urllib.parse import urlparse, urlencode, parse_qsl, urlunparse
         
-    # asyncpg expects `ssl=require` instead of `sslmode=require`
-    if "sslmode=" in raw_db_url:
-        raw_db_url = raw_db_url.replace("sslmode=", "ssl=")
+        # Auto-fix standard postgresql:// to use the asyncpg driver
+        if raw_db_url.startswith("postgres://"):
+            raw_db_url = raw_db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif raw_db_url.startswith("postgresql://"):
+            raw_db_url = raw_db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+            
+        parsed = urlparse(raw_db_url)
+        qs = parse_qsl(parsed.query)
+        
+        # Filter out unsupported asyncpg params (like Neon's channel_binding)
+        new_qs = [(k, v) for k, v in qs if k not in ("channel_binding", "options")]
+        
+        # asyncpg expects `ssl=require` instead of `sslmode=require`
+        new_qs = [("ssl", v) if k == "sslmode" else (k, v) for k, v in new_qs]
+        
+        parsed = parsed._replace(query=urlencode(new_qs))
+        raw_db_url = urlunparse(parsed)
         
     DATABASE_URL: str = raw_db_url
 
