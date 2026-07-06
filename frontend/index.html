@@ -1000,6 +1000,8 @@
                             } else {
                                 slotsGrid.innerHTML = '<div class="col-span-full text-center text-red-400">No slots available on this date.</div>';
                             }
+                        } else {
+                            slotsGrid.innerHTML = '<div class="col-span-full text-center text-red-400">Server error while loading slots.</div>';
                         }
                     } catch (err) {
                         slotsGrid.innerHTML = '<div class="col-span-full text-center text-red-400">Failed to load slots.</div>';
