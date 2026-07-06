@@ -40,7 +40,8 @@ async def init_db():
     """Create all tables on startup."""
     from backend.models import (
         user, client, plan, template, campaign, email_log, 
-        payment, app_settings, email_queue, promo_code, image
+        payment, app_settings, email_queue, promo_code, image,
+        appointment, newsletter
     )  # noqa: F401
     
     async with engine.begin() as conn:
