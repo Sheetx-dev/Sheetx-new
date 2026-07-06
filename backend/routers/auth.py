@@ -14,6 +14,8 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 @router.get("/google")
 async def login_google(request: Request):
     """Initiate Google OAuth."""
+    if not settings.GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=400, detail="Google OAuth is not configured. Please add GOOGLE_CLIENT_ID to your environment variables.")
     # Use the dynamic URL for local development to prevent localhost/127.0.0.1 session cookie mismatches
     base_url = str(request.base_url)
     if "localhost" in base_url or "127.0.0.1" in base_url:
