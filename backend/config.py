@@ -5,7 +5,17 @@ load_dotenv()
 
 class Settings:
     # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "")
+    raw_db_url = os.getenv("DATABASE_URL", "")
+    if not raw_db_url:
+        print("WARNING: DATABASE_URL is not set!")
+    
+    # Auto-fix Railway's standard postgresql:// to use the asyncpg driver
+    if raw_db_url.startswith("postgres://"):
+        raw_db_url = raw_db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif raw_db_url.startswith("postgresql://"):
+        raw_db_url = raw_db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        
+    DATABASE_URL: str = raw_db_url
 
     # Auth
     JWT_SECRET: str = os.getenv("JWT_SECRET", "change_me_in_production")
