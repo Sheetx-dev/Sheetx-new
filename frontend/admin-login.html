@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <!-- Tailwind & DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.4/dist/full.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        :root {
+            --p: 258 79% 66%;
+            --s: 217 91% 60%;
+        }
+    </style>
+    <link rel="stylesheet" href="/api/public/theme.css">
+    <style>body { visibility: hidden; opacity: 0; }</style>
+</head>
+<body class="antialiased min-h-screen flex items-center justify-center p-4">
+
+    <div class="card bg-base-200 border border-white/5 shadow-2xl p-8 rounded-2xl w-full max-w-md">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold">Admin Portal</h2>
+            <p class="text-gray-400 mt-2 text-sm">Sign in to manage campaigns and clients.</p>
+        </div>
+
+        <div id="error-msg" class="alert alert-error shadow-lg mb-6 hidden">
+            <span>Invalid email or password.</span>
+        </div>
+
+        <form id="login-form" class="space-y-4">
+            <div class="form-control">
+                <label class="label"><span class="label-text">Email Address</span></label>
+                <input type="email" id="email" class="input input-bordered focus:border-primary" required placeholder="admin@example.com">
+            </div>
+            
+            <div class="form-control">
+                <label class="label"><span class="label-text">Password</span></label>
+                <input type="password" id="password" class="input input-bordered focus:border-primary" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full text-white mt-6" id="submit-btn">Sign In</button>
+        </form>
+        
+        <div class="divider border-white/5 my-6 text-gray-500 text-sm">Super Admin</div>
+        
+        <button type="button" onclick="window.location.href='/api/auth/google'" class="btn btn-outline border-white/10 hover:bg-white/5 w-full text-white">
+            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+            </svg>
+            Sign in with Google
+        </button>
+
+        <div class="mt-6 text-center">
+            <a href="/" class="link text-sm text-gray-500 hover:text-white">Return to Homepage</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const errorMsg = document.getElementById('error-msg');
+            
+            btn.innerHTML = '<span class="loading loading-spinner"></span> Signing in...';
+            btn.disabled = true;
+            errorMsg.classList.add('hidden');
+
+            const payload = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const res = await fetch('/api/auth/login/basic', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('refresh_token', data.refresh_token);
+                    window.location.href = '/admin/';
+                } else {
+                    errorMsg.querySelector('span').textContent = data.detail || 'Login failed';
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorMsg.querySelector('span').textContent = 'Network error. Please try again.';
+                errorMsg.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = 'Sign In';
+                btn.disabled = false;
+            }
+        });
+    </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        requestAnimationFrame(() => {
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = '1';
+            document.body.style.transition = 'opacity 0.3s';
+        });
+    });
+</script>
+</body>
+</html>

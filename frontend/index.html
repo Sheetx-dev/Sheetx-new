@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sheetx.io - AI-Powered Email and WhatsApp Automation</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind & DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        primary: 'var(--tw-primary, #8b5cf6)',
+                        secondary: 'var(--tw-secondary, #3b82f6)',
+                        dark: '#0f172a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: transparent; color: #f8fafc; overflow-x: hidden; }
+        .gradient-text { background: linear-gradient(to right, var(--tw-primary, #8b5cf6), var(--tw-secondary, #3b82f6)); -webkit-background-clip: text; color: transparent; }
+        .hero-bg { background: radial-gradient(circle at 50% -20%, color-mix(in srgb, var(--tw-primary, #8b5cf6) 15%, transparent) 0%, transparent 50%); }
+        
+        /* Animated Space Background */
+        .space-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -10;
+            background: #0b0f19;
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration, 3s) infinite ease-in-out alternate;
+        }
+        .star-sm { width: 1px; height: 1px; box-shadow: 0 0 2px rgba(255,255,255,0.4); }
+        .star-md { width: 2px; height: 2px; box-shadow: 0 0 4px rgba(255,255,255,0.6); }
+        .star-lg { width: 3px; height: 3px; box-shadow: 0 0 6px rgba(255,255,255,0.8); }
+
+        @keyframes twinkle {
+            0% { opacity: 0.1; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        /* Override daisyUI primary */
+        :root {
+            --p: 258 79% 66%; /* #8b5cf6 */
+            --s: 217 91% 60%; /* #3b82f6 */
+        }
+    </style>
+    <link rel="stylesheet" href="/api/public/theme.css">
+    <style>body { visibility: hidden; opacity: 0; }</style>
+</head>
+<body class="antialiased hero-bg min-h-screen flex flex-col">
+
+    <!-- Space Background -->
+    <div class="space-bg" id="space-bg"></div>
+
+    <!-- Navigation -->
+    <!-- Floating Aesthetic Navbar -->
+    <header class="fixed top-0 left-0 right-0 z-50 pt-4 px-4 sm:px-6 lg:px-8 transition-all duration-300" id="main-nav">
+        <div class="max-w-7xl mx-auto">
+            <div class="navbar bg-dark/60 backdrop-blur-xl border border-white/10 rounded-full px-6 py-2 shadow-2xl shadow-primary/10 transition-all duration-300">
+                <div class="navbar-start">
+                    <!-- Mobile Hamburger Menu -->
+                    <div class="dropdown">
+                        <div tabindex="0" role="button" class="btn btn-ghost lg:hidden text-white mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" /></svg>
+                        </div>
+                        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-2xl bg-base-100/90 backdrop-blur-xl border border-white/10 rounded-box w-52">
+                            <li><a href="#how-it-works" class="hover:bg-white/10">How it will works</a></li>
+                            <li><a href="#features" class="hover:bg-white/10">Features</a></li>
+                            <li><a href="#pricing" class="hover:bg-white/10">Pricing</a></li>
+                            <li><a href="#testimonials" class="hover:bg-white/10">Testimonials</a></li>
+                            <li><a href="#faq" class="hover:bg-white/10">FAQ</a></li>
+                        </ul>
+                    </div>
+                    
+                    <a href="#" class="flex items-center gap-2 group">
+                        <div class="p-1 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors duration-300">
+                            <img src="/api/logo?v=3" alt="Logo" class="h-8 object-contain">
+                        </div>
+                    </a>
+                </div>
+                <div class="navbar-center hidden lg:flex">
+                    <ul class="flex items-center gap-1 px-2 py-1 bg-white/5 rounded-full border border-white/5">
+                        <li><a href="#how-it-works" class="px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300">How it works</a></li>
+                        <li><a href="#features" class="px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300">Features</a></li>
+                        <li><a href="#pricing" class="px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300">Pricing</a></li>
+                        <li><a href="#testimonials" class="px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300">Testimonials</a></li>
+                        <li><a href="#faq" class="px-4 py-2 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-300">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="navbar-end gap-2 sm:gap-3">
+                    <button onclick="document.getElementById('login-modal').showModal()" class="hidden sm:inline-flex text-sm font-semibold text-gray-300 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-colors duration-300">Log in</button>
+                    <button onclick="document.getElementById('register-modal').showModal()" class="btn btn-sm h-10 px-4 sm:px-6 rounded-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white border-none shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] transition-all duration-300">
+                        Get Started
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="flex-1">
+        <div class="hero pt-32 pb-24 lg:pt-40 lg:pb-32">
+            <div class="hero-content text-center px-4 sm:px-6 lg:px-8">
+                <div class="max-w-5xl">
+                    <div id="landing-hero-badge" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-8 border border-primary/20">
+                        <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                        Built for Scale
+                    </div>
+                    <h1 id="landing-hero-title" class="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
+                        Automate your outreach with <br class="hidden md:block"/>
+                        <span class="gradient-text">AI-Driven Personalization</span>
+                    </h1>
+                    <p id="landing-hero-subtitle" class="py-6 text-xl text-gray-400 max-w-2xl mx-auto">
+                        Connect your Google Sheets, define your templates, and let our AI dispatch the perfect, personalized Email & WhatsApp message to every lead automatically.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mt-4">
+                        <button id="landing-hero-cta" onclick="document.getElementById('demo-modal').showModal()" class="btn bg-primary hover:bg-violet-600 text-white border-none btn-lg px-8 rounded-full shadow-lg shadow-primary/30">
+                            Book a Demo
+                        </button>
+                        <a href="#features" class="btn btn-ghost btn-lg px-8 rounded-full text-gray-300">
+                            View Features
+                        </a>
+                    </div>
+                    <p class="text-sm text-gray-400 mt-6">No credit card required • 5-day free trial • Cancel any time</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Mock Google Sheet Animation -->
+        <div class="max-w-5xl mx-auto px-6 mb-16">
+            <div class="rounded-xl border border-white/10 bg-[#0f172a] shadow-2xl shadow-primary/20 overflow-hidden flex flex-col">
+                <!-- Sheet Header -->
+                <div class="bg-[#1e293b] p-3 flex items-center gap-3 border-b border-white/5">
+                    <div class="w-8 h-8 rounded bg-green-600/20 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6zm1 2h6v2H7V6zm0 4h6v2H7v-2zm0 4h4v2H7v-2z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <div class="text-sm font-semibold text-gray-200">Lead Database - Q3 Outreach</div>
+                </div>
+                <!-- Sheet Body -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm text-gray-300">
+                        <thead>
+                            <tr class="bg-[#1e293b]/50 border-b border-white/5 text-gray-400 font-medium">
+                                <th class="py-2 px-4 border-r border-white/5 w-8 text-center"></th>
+                                <th class="py-2 px-4 border-r border-white/5 w-1/6">A: Name</th>
+                                <th class="py-2 px-4 border-r border-white/5 w-1/3">B: Inquiry / Need</th>
+                                <th class="py-2 px-4 w-1/2">C: AI Generated Message</th>
+                            </tr>
+                        </thead>
+                        <tbody class="font-mono text-xs">
+                            <tr class="border-b border-white/5 hover:bg-white/5">
+                                <td class="py-3 px-4 border-r border-white/5 text-center text-gray-400 bg-[#1e293b]/30">1</td>
+                                <td class="py-3 px-4 border-r border-white/5 text-blue-300">Ravi Kumar</td>
+                                <td class="py-3 px-4 border-r border-white/5 text-gray-400">Inquiry about 3BHK houses in Kukatpally.</td>
+                                <td class="py-3 px-4 relative overflow-hidden flex items-center gap-2">
+                                    <span class="px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded text-[10px] uppercase font-bold tracking-wider whitespace-nowrap">Real Estate Template</span>
+                                    <span class="px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-[10px] uppercase font-bold tracking-wider whitespace-nowrap hidden sm:inline">WhatsApp Queued</span>
+                                    <div class="text-green-300"><span id="typewriter-1"></span><span class="animate-pulse font-bold text-primary ml-1" id="cursor-1">|</span></div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-white/5 hover:bg-white/5">
+                                <td class="py-3 px-4 border-r border-white/5 text-center text-gray-400 bg-[#1e293b]/30">2</td>
+                                <td class="py-3 px-4 border-r border-white/5 text-blue-300">Priya Sharma</td>
+                                <td class="py-3 px-4 border-r border-white/5 text-gray-400">Looking for SEO services for new dental clinic.</td>
+                                <td class="py-3 px-4 text-gray-400 italic flex items-center gap-2">
+                                    <span class="px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded text-[10px] uppercase font-bold tracking-wider whitespace-nowrap">Digi-Marketing Template</span>
+                                    Pending AI Match...
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-white/5">
+                                <td class="py-3 px-4 border-r border-white/5 text-center text-gray-400 bg-[#1e293b]/30">3</td>
+                                <td class="py-3 px-4 border-r border-white/5 text-blue-300">Amit Patel</td>
+                                <td class="py-3 px-4 border-r border-white/5 text-gray-400">Needs social media management for restaurant.</td>
+                                <td class="py-3 px-4 text-gray-400 italic flex items-center gap-2">
+                                    <span class="px-2 py-0.5 bg-green-500/20 text-green-300 rounded text-[10px] uppercase font-bold tracking-wider whitespace-nowrap">SMM Template</span>
+                                    Pending AI Match...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROI & Comparison Section -->
+        <section class="py-24 border-t border-white/5 bg-gradient-to-b from-transparent to-base-200/50 relative z-10">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
+                    
+                    <!-- Left Side: Calculator -->
+                    <div>
+                        <div class="mb-8">
+                            <h2 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight">Calculate Your ROI</h2>
+                            <p class="text-lg text-gray-400 font-light">See exactly how much time and money you save by automating your spreadsheet outreach instead of doing it manually.</p>
+                        </div>
+                        
+                        <div class="bg-base-100 border border-white/10 rounded-3xl p-8 shadow-2xl relative">
+                            <!-- Slider -->
+                            <div class="mb-10">
+                                <label class="block text-left text-sm font-bold text-gray-300 mb-4">Messages sent per week: <span id="roi-emails-label" class="text-primary text-xl ml-2">250</span></label>
+                                <input type="range" min="10" max="2000" value="250" class="range range-primary w-full" id="roi-slider" />
+                                <div class="w-full flex justify-between text-xs px-2 mt-2 text-gray-400 font-mono">
+                                    <span>10</span>
+                                    <span>500</span>
+                                    <span>1000</span>
+                                    <span>1500</span>
+                                    <span>2000</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Results -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-base-300 rounded-xl p-6 border border-red-500/20 text-left">
+                                    <div class="text-xs font-bold text-red-400 uppercase tracking-widest mb-1">Manual Approach</div>
+                                    <div class="text-3xl font-bold text-white mb-2"><span id="roi-manual-hours">25</span> <span class="text-lg text-gray-400 font-normal">hours/wk</span></div>
+                                    <div class="text-sm text-gray-400">Approx. <span id="roi-manual-cost" class="text-red-300 font-mono">$750</span> in labor cost</div>
+                                </div>
+                                <div class="bg-primary/10 rounded-xl p-6 border border-primary/30 text-left relative overflow-hidden">
+                                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/20 rounded-full blur-xl"></div>
+                                    <div class="text-xs font-bold text-primary uppercase tracking-widest mb-1">With Sheetx.io</div>
+                                    <div class="text-3xl font-bold text-white mb-2"><span id="roi-sheetx-hours">0.5</span> <span class="text-lg text-gray-400 font-normal">hours/wk</span></div>
+                                    <div class="text-sm text-green-400 font-bold">You save <span id="roi-savings" class="font-mono">$735</span> every week!</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Engine Terminal -->
+                        <div class="mt-8 bg-[#0a0a0a] border border-white/10 rounded-3xl shadow-2xl relative overflow-hidden h-64 flex flex-col font-mono text-[11px] md:text-xs">
+                            <div class="absolute top-0 left-0 right-0 h-8 bg-[#1a1a1a] border-b border-white/5 flex items-center px-4 gap-2 z-10">
+                                <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                                <span class="ml-2 text-[10px] text-gray-400 uppercase tracking-widest font-sans font-bold">engine.log</span>
+                            </div>
+                            <div class="mt-8 flex-grow relative overflow-hidden p-4">
+                                <div class="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-transparent to-transparent z-10 pointer-events-none h-12"></div>
+                                <div class="w-full flex flex-col justify-end min-h-full space-y-2 pb-2 transition-transform duration-300" id="engine-terminal-content">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Side: Comparison Cards -->
+                    <div>
+                        <div class="mb-8">
+                            <h2 class="text-3xl md:text-4xl font-extrabold mb-4 tracking-tight">The Unfair Advantage</h2>
+                            <p class="text-lg text-gray-400 font-light">Why we built a purpose-driven Native Engine instead of relying on bulk mailers or generic Zapier webhooks.</p>
+                        </div>
+                        
+                        <div class="flex flex-col gap-6">
+                            <!-- Vs Bulk Mailers Card -->
+                            <div class="relative bg-base-200/40 backdrop-blur-xl border border-white/10 hover:border-primary/40 transition-all duration-500 rounded-[2rem] p-8 shadow-2xl group overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                
+                                <div class="relative z-10 flex items-center justify-between mb-6">
+                                    <h3 class="text-xl font-bold text-white">Vs. Bulk Senders<br/><span class="text-xs text-gray-400 font-normal">Mailchimp, Apollo, SendGrid</span></h3>
+                                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">📨</div>
+                                </div>
+                                
+                                <div class="space-y-4 relative z-10">
+                                    <div>
+                                        <div class="flex items-center gap-2 text-green-400 font-bold text-sm mb-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Email + WhatsApp Combined</div>
+                                        <p class="text-xs text-gray-400 pl-6 mb-3">Bulk mailers only do email. We hit your leads on multiple channels to triple your response rate.</p>
+                                        <div class="flex items-center gap-2 text-green-400 font-bold text-sm mb-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 99% Primary Inbox Placement</div>
+                                        <p class="text-xs text-gray-400 pl-6">We use your personal Gmail API. Bulk mailers use shared IPs that get dumped into Promotions.</p>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2 text-green-400 font-bold text-sm mb-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Zero Technical Setup</div>
+                                        <p class="text-xs text-gray-400 pl-6">No complex DNS, DKIM, or DMARC records required. Just a 1-click Google Login.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vs Zapier Card -->
+                            <div class="relative bg-base-200/40 backdrop-blur-xl border border-white/10 hover:border-secondary/40 transition-all duration-500 rounded-[2rem] p-8 shadow-2xl group overflow-hidden">
+                                <div class="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                
+                                <div class="relative z-10 flex items-center justify-between mb-6">
+                                    <h3 class="text-xl font-bold text-white">Vs. Make & Zapier<br/><span class="text-xs text-gray-400 font-normal">Complex Node Workflows</span></h3>
+                                    <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">⚡</div>
+                                </div>
+                                
+                                <div class="space-y-4 relative z-10">
+                                    <div>
+                                        <div class="flex items-center gap-2 text-green-400 font-bold text-sm mb-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Flat Predictable Cost</div>
+                                        <p class="text-xs text-gray-400 pl-6">Zapier charges per "task". Our native engine gives you unlimited tasks for a flat fee.</p>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2 text-green-400 font-bold text-sm mb-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Native Error Handling</div>
+                                        <p class="text-xs text-gray-400 pl-6">fails completely on API timeouts. We auto-pause and gracefully retry without you noticing.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+            <!-- Why Sheetx.io Section -->
+        <section class="py-24 border-t border-white/5 relative">
+            <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+                <!-- Left Side: Text and Feature Cards -->
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider mb-6">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        Why Sheetx.io
+                    </div>
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">Built differently, <br/><span class="text-gray-400">for bulk outreach specifically</span></h2>
+                    <p class="text-lg text-gray-400 mb-10 leading-relaxed max-w-xl">
+                        Most outreach software forces you into generic CRM workflows. Sheetx.io was designed from scratch around how modern businesses actually operate—using Google Sheets.
+                    </p>
+
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div class="bg-base-200/50 p-6 rounded-2xl border border-white/5 hover:border-primary/30 transition-colors">
+                            <div class="flex items-center gap-2 text-primary font-bold mb-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Spreadsheet-Native
+                            </div>
+                            <p class="text-sm text-gray-400">Map columns directly to message variables. No complex data migration or syncing required.</p>
+                        </div>
+                        <div class="bg-base-200/50 p-6 rounded-2xl border border-white/5 hover:border-primary/30 transition-colors">
+                            <div class="flex items-center gap-2 text-primary font-bold mb-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Multi-Campaign Ready
+                            </div>
+                            <p class="text-sm text-gray-400">Manage multiple campaigns from one dashboard with separate limits for each workspace.</p>
+                        </div>
+                        <div class="bg-base-200/50 p-6 rounded-2xl border border-white/5 hover:border-primary/30 transition-colors">
+                            <div class="flex items-center gap-2 text-primary font-bold mb-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Always Delivered
+                            </div>
+                            <p class="text-sm text-gray-400">Automatic API throttling and warmup protocols protect your domain reputation 24/7.</p>
+                        </div>
+                        <div class="bg-base-200/50 p-6 rounded-2xl border border-white/5 hover:border-primary/30 transition-colors">
+                            <div class="flex items-center gap-2 text-primary font-bold mb-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Scales With You
+                            </div>
+                            <p class="text-sm text-gray-400">From a single-person agency to a 500-staff enterprise—Sheetx.io grows without migration headaches.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Stats Panel -->
+                <div class="lg:pl-8">
+                    <div class="bg-base-200 border border-white/5 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                        <!-- Background decoration -->
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+                        
+                        <h3 class="text-xs font-bold tracking-widest text-gray-400 uppercase mb-8">Platform Health</h3>
+                        
+                        <div class="space-y-6 mb-8 relative z-10">
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-gray-300">Deliverability accuracy</span>
+                                    <span class="text-green-400 font-bold">99.8%</span>
+                                </div>
+                                <div class="w-full bg-base-300 rounded-full h-1.5">
+                                    <div class="bg-green-400 h-1.5 rounded-full" style="width: 99.8%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-gray-300">API compliance</span>
+                                    <span class="text-purple-400 font-bold">100%</span>
+                                </div>
+                                <div class="w-full bg-base-300 rounded-full h-1.5">
+                                    <div class="bg-purple-400 h-1.5 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-gray-300">Uptime SLA</span>
+                                    <span class="text-cyan-400 font-bold">99.9%</span>
+                                </div>
+                                <div class="w-full bg-base-300 rounded-full h-1.5">
+                                    <div class="bg-cyan-400 h-1.5 rounded-full" style="width: 99.9%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-gray-300">Support CSAT</span>
+                                    <span class="text-orange-400 font-bold">97%</span>
+                                </div>
+                                <div class="w-full bg-base-300 rounded-full h-1.5">
+                                    <div class="bg-orange-400 h-1.5 rounded-full" style="width: 97%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 relative z-10">
+                            <div class="bg-base-300/50 p-4 rounded-xl text-center border border-white/5">
+                                <div class="font-bold text-white mb-1">< 1s</div>
+                                <div class="text-xs text-gray-400">Sync load time</div>
+                            </div>
+                            <div class="bg-base-300/50 p-4 rounded-xl text-center border border-white/5">
+                                <div class="font-bold text-white mb-1">256-bit</div>
+                                <div class="text-xs text-gray-400">Encryption</div>
+                            </div>
+                            <div class="bg-base-300/50 p-4 rounded-xl text-center border border-white/5">
+                                <div class="font-bold text-white mb-1">SOC 2</div>
+                                <div class="text-xs text-gray-400">Certified</div>
+                            </div>
+                            <div class="bg-base-300/50 p-4 rounded-xl text-center border border-white/5">
+                                <div class="font-bold text-white mb-1">GDPR</div>
+                                <div class="text-xs text-gray-400">Compliant</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    <!-- How It Works (Steps) -->
+        <section id="how-it-works" class="py-24 border-t border-white/5 relative z-10">
+            <div class="max-w-4xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 id="landing-how-it-works-title" class="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">Up and running in minutes</h2>
+                    <p id="landing-how-it-works-subtitle" class="text-xl text-gray-400 font-light leading-relaxed max-w-3xl mx-auto">No implementation consultants. No lengthy onboarding. Just sign up and start managing your outreach.</p>
+                </div>
+                <div id="landing-steps-container" class="space-y-4">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+    <!-- Features -->
+        <section id="features" class="py-24 border-y border-white/5">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 id="landing-features-title" class="text-3xl md:text-5xl font-bold mb-4">Everything your business needs</h2>
+                    <p id="landing-features-subtitle" class="text-gray-400 text-lg">Stop sending generic blasts. Start building relationships at scale.</p>
+                </div>
+                
+                <div id="landing-features-grid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Features populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing -->
+        <section id="pricing" class="py-24 border-t border-white/5">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-5xl font-bold mb-4">Simple, Transparent Pricing</h2>
+                    <p class="text-gray-400 text-lg mb-8">Choose the plan that fits your volume.</p>
+                    <!-- Billing Toggle -->
+                    <div class="bg-base-300 p-1 rounded-full inline-flex border border-white/10" id="landing-billing-toggle">
+                        <button class="px-6 py-2 rounded-full text-sm font-semibold transition-all bg-primary text-white" data-cycle="monthly">Monthly</button>
+                        <button class="px-6 py-2 rounded-full text-sm font-semibold transition-all text-gray-400 hover:text-white" data-cycle="half_yearly">6-Monthly <span class="text-xs text-green-400 ml-1">15% off</span></button>
+                        <button class="px-6 py-2 rounded-full text-sm font-semibold transition-all text-gray-400 hover:text-white" data-cycle="yearly">Yearly <span class="text-xs text-green-400 ml-1">25% off</span></button>
+                    </div>
+                </div>
+                
+                <div id="public-plans" class="grid md:grid-cols-3 gap-8">
+                    <p class="text-center text-gray-400 col-span-3">Loading plans...</p>
+                </div>
+            </div>
+        </section>
+
+            <!-- Testimonials -->
+        <section id="testimonials" class="py-24 border-t border-white/5 relative z-10">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider mb-6">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        Testimonials
+                    </div>
+                    <h2 id="landing-testimonials-title" class="text-3xl md:text-5xl font-extrabold tracking-tight">Trusted by industry leaders</h2>
+                </div>
+                <div id="landing-testimonials-container" class="grid md:grid-cols-3 gap-8">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+        <!-- FAQ -->
+        <section id="faq" class="py-24 border-t border-white/5">
+            <div class="max-w-3xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <span class="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold tracking-wider uppercase text-gray-300">FAQ</span>
+                    <h2 class="text-3xl md:text-5xl font-bold mt-6">Frequently asked questions</h2>
+                </div>
+                <div id="landing-faq-container" class="space-y-2">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us -->
+        <section id="about" class="py-32 border-t border-white/5 relative z-10 overflow-hidden">
+            <!-- Background glows -->
+            <div class="absolute top-1/2 left-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 -translate-x-1/2"></div>
+            <div class="absolute top-1/2 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="grid lg:grid-cols-2 gap-16 items-center">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider mb-8 shadow-[0_0_15px_rgba(139,92,246,0.2)]">
+                            <span class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_var(--tw-primary)]"></span>
+                            Our Story
+                        </div>
+                        <h2 class="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight leading-tight">
+                            Built by agency owners,<br/>
+                            <span class="text-gray-400">for agency owners.</span>
+                        </h2>
+                        <p class="text-lg text-gray-400 font-light leading-relaxed mb-10">
+                            We started Sheetx.io because we were exhausted from fighting clunky CRM integrations just to send personalized messages. 
+                            We wanted a tool that respected the beautiful simplicity of Google Sheets, but delivered the devastating power of an enterprise outreach platform.
+                            <br/><br/>
+                            
+                        </p>
+                        <div class="flex gap-4">
+                            <div class="flex items-center gap-4 bg-base-200/50 p-4 rounded-2xl border border-white/5 hover:border-primary/30 transition-colors cursor-default">
+                                <div class="text-3xl">🚀</div>
+                                <div>
+                                    <div class="text-xs text-gray-400 uppercase tracking-wider font-bold">Founded in</div>
+                                    <div class="font-bold text-white text-lg">2026</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 bg-base-200/50 p-4 rounded-2xl border border-white/5 hover:border-secondary/30 transition-colors cursor-default">
+                                <div class="text-3xl">🌍</div>
+                                <div>
+                                    <div class="text-xs text-gray-400 uppercase tracking-wider font-bold">Based in</div>
+                                    <div class="font-bold text-white text-lg">India</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative mt-12 lg:mt-0">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 to-secondary/20 blur-[80px] rounded-full"></div>
+                        <div class="relative bg-base-200/90 border border-white/10 p-10 rounded-[2rem] shadow-2xl backdrop-blur-xl hover:border-primary/30 transition-colors duration-500">
+                            <div class="flex items-center gap-5 mb-8">
+                                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xl font-bold text-white border-4 border-base-300 shadow-xl shadow-primary/20">
+                                    SX
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">The Founders</h3>
+                                    <p class="text-sm text-gray-400 font-medium tracking-wide">Sheetx.io Team</p>
+                                </div>
+                            </div>
+                            <blockquote class="text-xl font-medium text-gray-300 leading-relaxed relative z-10 italic">
+                                <span class="absolute -top-6 -left-4 text-6xl text-primary/20 font-serif leading-none">"</span>
+                                Our mission is simple: eliminate the friction between your data and your outreach. No more CSV exports. No more syncing errors. Just your Google Sheet and your prospects, perfectly aligned.
+                                <span class="absolute -bottom-10 right-0 text-6xl text-primary/20 font-serif leading-none">"</span>
+                            </blockquote>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Partner With Us Section -->
+        <section class="py-24 relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] border-t border-white/5">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent"></div>
+            
+            <div class="max-w-6xl mx-auto px-6 relative z-10 text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/10 text-secondary text-sm font-semibold mb-6 border border-secondary/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Partner Network
+                </div>
+                
+                <h2 id="partner-title" class="text-4xl md:text-5xl font-extrabold text-white mb-6">Partner With <span class="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">SheetX</span></h2>
+                
+                <p id="partner-subtitle" class="text-xl text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+                    Are you an agency, consultant, or software provider? Join our partner network to offer your clients the ultimate AI-driven outreach automation platform while earning generous recurring commissions.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <button onclick="document.getElementById('demo-type').value='Partnership'; document.getElementById('demo-modal').showModal()" class="btn btn-secondary text-white btn-lg px-10 rounded-full shadow-lg shadow-secondary/20 hover:-translate-y-1 transition-transform">
+                        Become a Partner
+                    </button>
+                    <a href="#features" class="btn btn-outline border-gray-600 text-gray-300 hover:bg-white/5 btn-lg px-10 rounded-full">
+                        Learn More
+                    </a>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20 text-left max-w-4xl mx-auto">
+                    <div class="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
+                        <div class="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h4 id="partner-b1-title" class="text-xl font-bold text-white mb-2">Revenue Share</h4>
+                        <p id="partner-b1-desc" class="text-gray-400 text-sm">Earn up to 30% lifetime recurring commissions for every client you refer to SheetX.</p>
+                    </div>
+                    <div class="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
+                        <div class="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center text-secondary mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                        </div>
+                        <h4 id="partner-b2-title" class="text-xl font-bold text-white mb-2">Priority Support</h4>
+                        <p id="partner-b2-desc" class="text-gray-400 text-sm">Get access to a dedicated partner success manager and priority technical support 24/7.</p>
+                    </div>
+                    <div class="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm">
+                        <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-400 mb-4">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        </div>
+                        <h4 id="partner-b3-title" class="text-xl font-bold text-white mb-2">Co-Marketing</h4>
+                        <p id="partner-b3-desc" class="text-gray-400 text-sm">Collaborate on case studies, webinars, and exclusive resources to grow our mutual audience.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scheduling Section -->
+        <section id="scheduling" class="py-24 relative z-10 bg-dark/30 backdrop-blur-md border-t border-white/5">
+            <div class="max-w-4xl mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Schedule a Call</h2>
+                <p class="text-gray-400 text-lg mb-12">Pick a time that works best for you and we'll show you how SheetX can scale your business.</p>
+                
+                <div class="bg-base-100/50 border border-white/10 rounded-3xl p-6 md:p-10 text-left">
+                    <div id="schedule-step-1" class="space-y-6">
+                        <div>
+                            <label class="label"><span class="label-text text-gray-300 font-bold">1. Select a Date</span></label>
+                            <input type="date" id="schedule-date" class="input input-bordered w-full bg-dark/50 text-white border-white/10 focus:border-primary" />
+                        </div>
+                        <div id="schedule-slots-container" class="hidden">
+                            <label class="label"><span class="label-text text-gray-300 font-bold">2. Select a Time</span></label>
+                            <div id="schedule-slots" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                <!-- Slots injected here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="schedule-step-2" class="hidden mt-8 space-y-4 border-t border-white/10 pt-8">
+                        <label class="label"><span class="label-text text-gray-300 font-bold">3. Your Details</span></label>
+                        <form id="form-schedule" class="space-y-4">
+                            <input type="hidden" id="schedule-selected-time" />
+                            <div class="form-control">
+                                <input type="text" id="schedule-name" placeholder="Your full name" class="input input-bordered w-full bg-dark/50 text-white border-white/10" required />
+                            </div>
+                            <div class="form-control">
+                                <input type="email" id="schedule-email" placeholder="Your email address" class="input input-bordered w-full bg-dark/50 text-white border-white/10" required />
+                            </div>
+                            <button type="submit" id="btn-schedule-submit" class="btn bg-primary hover:bg-violet-600 text-white border-none w-full">Confirm Booking</button>
+                        </form>
+                    </div>
+
+                    <div id="schedule-success" class="hidden text-center py-12">
+                        <div class="w-16 h-16 bg-success/20 text-success rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Booking Confirmed!</h3>
+                        <p class="text-gray-400">We've sent a calendar invitation to your email address.</p>
+                        <button onclick="resetScheduling()" class="btn btn-outline border-white/20 text-white mt-6">Book Another</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    <!-- Footer -->
+    <footer class="bg-base-300/50 border-t border-white/5 pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col lg:flex-row justify-between gap-12 mb-16">
+                <div class="lg:w-1/3">
+                    <div class="flex items-center gap-3 mb-6">
+                        <img src="/api/logo?v=3" alt="Sheetx Logo" class="h-10 object-contain">
+                    </div>
+                    <p class="text-gray-400 text-sm max-w-sm mb-6">The intelligent outreach automation platform purpose-built for bulk outreach.</p>
+                    <div class="flex items-center gap-2 text-gray-300 text-sm mb-8">
+                        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <a href="mailto:hello@sheetx.io" class="hover:text-white transition-colors">hello@sheetx.io</a>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-400 tracking-wider uppercase mb-4">Newsletter & Growth Tips</h4>
+                        <p class="text-gray-400 text-sm mb-4">Join 10,000+ founders. Get our top 5 outreach templates that generate 30%+ reply rates directly to your inbox.</p>
+                        <form id="form-newsletter" class="flex flex-col gap-2">
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <input type="email" id="newsletter-email" placeholder="Enter your email address" class="input input-bordered bg-dark/50 focus:bg-dark text-white border-white/10 focus:border-primary w-full" required />
+                                <input type="tel" id="newsletter-mobile" placeholder="Mobile Number" class="input input-bordered bg-dark/50 focus:bg-dark text-white border-white/10 focus:border-primary w-full" required />
+                            </div>
+                            <button type="submit" class="btn bg-primary hover:bg-violet-600 text-white border-none w-full sm:w-auto">Subscribe</button>
+                        </form>
+                        <p id="newsletter-success" class="text-success text-xs mt-2 hidden">Thanks for subscribing! Check your inbox soon.</p>
+                    </div>
+                </div>
+                
+                <div id="landing-footer-grid" class="lg:w-2/3 grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-white/5 text-sm text-gray-400">
+                <p>© 2026 Sheetx.io. All rights reserved.</p>
+                <div class="mt-4 md:mt-0 flex gap-4">
+                    <a href="/admin-login.html" class="hover:text-white transition-colors">Admin Login</a>
+                    <a href="/legal.html" class="hover:text-white transition-colors">Regulations & Policies</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals (DaisyUI Dialogs) -->
+    
+    <dialog id="login-modal" class="modal">
+        <div class="modal-box bg-base-100 border border-white/10">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-2xl mb-2">Welcome Back</h3>
+            <p class="text-gray-400 mb-6">Sign in to access your Sheetx.io dashboard.</p>
+            <button onclick="auth.login()" class="btn w-full flex items-center justify-center gap-3 bg-white text-dark hover:bg-gray-200 border-none">
+                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Sign in with Google
+            </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    
+    <dialog id="demo-modal" class="modal">
+        <div class="modal-box bg-base-100 border border-white/10 max-w-lg">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-gray-400 hover:text-white">&#10005;</button>
+            </form>
+            <h3 class="font-bold text-2xl mb-1 text-white">Request Information</h3>
+            <p class="text-gray-400 mb-6 text-sm">Fill out the form below and our team will get in touch shortly.</p>
+            
+            <form id="form-demo-request" class="space-y-4">
+                <div class="form-control">
+                    <label class="label pt-0 pb-1"><span class="label-text text-gray-300">Name <span class="text-error">*</span></span></label>
+                    <input type="text" id="demo-name" class="input input-bordered w-full bg-dark/50 focus:bg-dark text-white border-white/10 focus:border-primary" placeholder="Your full name" required />
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label class="label pt-0 pb-1"><span class="label-text text-gray-300">Email <span class="text-error">*</span></span></label>
+                        <input type="email" id="demo-email" class="input input-bordered w-full bg-dark/50 focus:bg-dark text-white border-white/10 focus:border-primary" placeholder="work@company.com" required />
+                    </div>
+                    <div class="form-control">
+                        <label class="label pt-0 pb-1"><span class="label-text text-gray-300">Phone</span></label>
+                        <input type="tel" id="demo-phone" class="input input-bordered w-full bg-dark/50 focus:bg-dark text-white border-white/10 focus:border-primary" placeholder="+1 (555) 000-0000" />
+                    </div>
+                </div>
+
+                <div class="form-control">
+                    <label class="label pt-0 pb-1"><span class="label-text text-gray-300">Company</span></label>
+                    <input type="text" id="demo-company" class="input input-bordered w-full bg-dark/50 focus:bg-dark text-white border-white/10 focus:border-primary" placeholder="Company Name" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label class="label pt-0 pb-1"><span class="label-text text-gray-300">Inquiry Type</span></label>
+                        <select id="demo-type" class="select select-bordered w-full bg-dark/50 focus:bg-dark text-white border-white/10 focus:border-primary">
+                            <option value="Demo">Platform Demo</option>
+                            <option value="Pricing">Pricing Question</option>
+                            <option value="Partnership">Partnership </option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-control">
+                        <label class="label pt-0 pb-1"><span class="label-text text-gray-300">Preferred Time <span class="text-error">*</span></span></label>
+                        <input type="datetime-local" id="demo-time" class="input input-bordered w-full bg-dark/50 focus:bg-dark text-white border-white/10 focus:border-primary" required />
+                    </div>
+                </div>
+
+                <div class="form-control">
+                    <label class="label pt-0 pb-1"><span class="label-text text-gray-300">Message</span></label>
+                    <textarea id="demo-message" class="textarea textarea-bordered h-24 bg-dark/50 focus:bg-dark text-white border-white/10 focus:border-primary" placeholder="How can we help you?"></textarea>
+                </div>
+                
+                <button type="submit" id="btn-demo-submit" class="btn bg-primary hover:bg-violet-600 text-white border-none w-full mt-2">Submit Request</button>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <dialog id="register-modal" class="modal">
+        <div class="modal-box bg-base-100 border border-white/10">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-2xl mb-2">Create Account</h3>
+            <p class="text-gray-400 mb-6">Start automating your outreach today.</p>
+            <button onclick="auth.login()" class="btn w-full flex items-center justify-center gap-3 bg-primary hover:bg-violet-600 text-white border-none">
+                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Sign up with Google
+            </button>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast toast-end z-50"></div>
+
+    <script src="/js/api.js?v=3"></script>
+    <script src="/js/auth.js?v=3"></script>
+    <script src="/js/landing.js?v=3"></script>
+    
+    <script>
+        // Custom lightweight Toast logic using DaisyUI toast
+        window.showToast = (msg, type='info') => {
+            const container = document.getElementById('toast-container');
+            const alert = document.createElement('div');
+            const alertClass = type === 'error' ? 'alert-error' : type === 'success' ? 'alert-success' : 'alert-info bg-primary text-white';
+            alert.className = `alert ${alertClass} shadow-lg`;
+            alert.innerHTML = `<span>${msg}</span>`;
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.classList.add('opacity-0', 'transition-opacity');
+                setTimeout(() => alert.remove(), 300);
+            }, 3000);
+        };
+    </script>
+    
+    <!-- Generate Stars -->
+    <script>
+        const space = document.getElementById('space-bg');
+        const starCount = window.innerWidth < 768 ? 75 : 200; // Fewer stars on mobile
+        
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            const rand = Math.random();
+            const sizeClass = rand > 0.85 ? 'star-lg' : rand > 0.5 ? 'star-md' : 'star-sm';
+            
+            star.className = `star ${sizeClass}`;
+            star.style.left = `${Math.random() * 100}vw`;
+            star.style.top = `${Math.random() * 100}vh`;
+            star.style.setProperty('--duration', `${Math.random() * 4 + 2}s`);
+            star.style.animationDelay = `${Math.random() * 5}s`;
+            
+            space.appendChild(star);
+        }
+    </script>
+    <!-- ROI & Animation Scripts -->
+    <script>
+        // ROI Calculator Logic
+        const slider = document.getElementById('roi-slider');
+        const emailsLabel = document.getElementById('roi-emails-label');
+        const manualHours = document.getElementById('roi-manual-hours');
+        const manualCost = document.getElementById('roi-manual-cost');
+        const sheetxHours = document.getElementById('roi-sheetx-hours');
+        const savings = document.getElementById('roi-savings');
+
+        // Assumptions: 
+        // Manual: 6 mins per personalized message (0.1 hours), Cost: ₹2,500/hour
+        // Sheetx: 0 mins per message, just 30 mins (0.5 hours) total to review/approve campaign
+        
+        function updateROI() {
+            const emails = parseInt(slider.value);
+            emailsLabel.textContent = emails.toLocaleString();
+            
+            const hoursManual = emails * 0.1;
+            const costManual = hoursManual * 30;
+            const hoursSheetx = 0.5; // Flat rate for review
+            
+            manualHours.textContent = hoursManual.toFixed(1);
+            manualCost.textContent = '₹' + costManual.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+            
+            const moneySaved = costManual; // Basically all of it since Sheetx is flat sub
+            savings.textContent = '₹' + moneySaved.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+        }
+        
+        slider.addEventListener('input', updateROI);
+        updateROI(); // Init
+
+        // Mock Google Sheet Typewriter Animation
+        const textToType = "Hi Ravi, I saw your inquiry for 3BHKs in Kukatpally. Here are 3 premium listings matching your criteria...";
+        const typeTarget = document.getElementById('typewriter-1');
+        const cursor = document.getElementById('cursor-1');
+        let index = 0;
+        
+        function typeWriter() {
+            if (index < textToType.length) {
+                typeTarget.textContent += textToType.charAt(index);
+                index++;
+                setTimeout(typeWriter, 50);
+            } else {
+                cursor.style.display = 'none';
+                // Reset after a long pause to loop it
+                setTimeout(() => {
+                    typeTarget.textContent = '';
+                    cursor.style.display = 'inline';
+                    index = 0;
+                    setTimeout(typeWriter, 500);
+                }, 5000);
+            }
+        }
+        
+        // Start animation after a short delay
+        setTimeout(typeWriter, 1500);
+
+        // Engine Terminal Simulation
+        const terminalLogs = [
+            { text: "Fetching rows from Sheet (ID: ...8a9f)", color: "text-blue-400" },
+            { text: "Detected 3 new leads matching 'Hot' criteria", color: "text-purple-400" },
+            { text: "Initializing Sheetx.io AI matching engine...", color: "text-gray-400" },
+            { text: "Context generated: 0.8s", color: "text-gray-400" },
+            { text: "Sending via personal Gmail API: johndoe@gmail.com", color: "text-gray-300" },
+            { text: "✅ Sent successfully (Primary Inbox)", color: "text-green-400 font-bold" },
+            { text: "Updating Sheet row 142 with 'Sent' status...", color: "text-yellow-400" },
+            { text: "Sleeping for 45s to protect domain reputation", color: "text-gray-400 italic" }
+        ];
+
+        const terminalContent = document.getElementById('engine-terminal-content');
+        let logIndex = 0;
+
+        function addTerminalLog() {
+            if (!terminalContent) return;
+            
+            const log = terminalLogs[logIndex];
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            const logEl = document.createElement('div');
+            logEl.className = `flex gap-2 opacity-0 transform translate-y-4 transition-all duration-300`;
+            logEl.innerHTML = `<span class="text-gray-400 select-none">[${time}]</span> <span class="${log.color}">${log.text}</span>`;
+            
+            terminalContent.appendChild(logEl);
+            
+            // Trigger animation
+            setTimeout(() => {
+                logEl.classList.remove('opacity-0', 'translate-y-4');
+            }, 50);
+
+            // Keep only last 6 messages
+            if (terminalContent.children.length > 6) {
+                terminalContent.removeChild(terminalContent.firstChild);
+            }
+
+            logIndex = (logIndex + 1) % terminalLogs.length;
+
+            // Randomize next log between 1.5s and 3.5s
+            const nextDelay = logIndex === 7 ? 4000 : Math.floor(Math.random() * 2000) + 1500;
+            setTimeout(addTerminalLog, nextDelay);
+        }
+
+        // Start terminal after a delay
+        setTimeout(addTerminalLog, 2000);
+
+        // --- Scheduling Logic ---
+        const scheduleDate = document.getElementById('schedule-date');
+        const slotsContainer = document.getElementById('schedule-slots-container');
+        const slotsGrid = document.getElementById('schedule-slots');
+        const step2 = document.getElementById('schedule-step-2');
+        const scheduleForm = document.getElementById('form-schedule');
+        const selectedTimeInput = document.getElementById('schedule-selected-time');
+        const scheduleSuccess = document.getElementById('schedule-success');
+        const scheduleStep1 = document.getElementById('schedule-step-1');
+
+        if (scheduleDate) {
+            scheduleDate.addEventListener('change', async (e) => {
+                if (e.target.value) {
+                    slotsGrid.innerHTML = '<div class="col-span-full text-center text-gray-400">Loading...</div>';
+                    slotsContainer.classList.remove('hidden');
+                    step2.classList.add('hidden');
+                    
+                    try {
+                        const res = await fetch('/api/public/appointments/slots?date=' + encodeURIComponent(e.target.value));
+                        if(res.ok) {
+                            const data = await res.json();
+                            slotsGrid.innerHTML = '';
+                            if (data.available_slots && data.available_slots.length > 0) {
+                                data.available_slots.forEach(time => {
+                                    const btn = document.createElement('button');
+                                    btn.type = 'button';
+                                    btn.className = 'btn btn-outline border-white/20 text-white hover:bg-primary hover:border-primary';
+                                    btn.innerText = time;
+                                    btn.onclick = () => {
+                                        Array.from(slotsGrid.children).forEach(c => c.classList.remove('bg-primary', 'border-primary'));
+                                        btn.classList.add('bg-primary', 'border-primary');
+                                        selectedTimeInput.value = time;
+                                        step2.classList.remove('hidden');
+                                    };
+                                    slotsGrid.appendChild(btn);
+                                });
+                            } else {
+                                slotsGrid.innerHTML = '<div class="col-span-full text-center text-red-400">No slots available on this date.</div>';
+                            }
+                        }
+                    } catch (err) {
+                        slotsGrid.innerHTML = '<div class="col-span-full text-center text-red-400">Failed to load slots.</div>';
+                    }
+                }
+            });
+        }
+
+        if (scheduleForm) {
+            scheduleForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('btn-schedule-submit');
+                const origText = btn.innerHTML;
+                btn.innerHTML = '<span class="loading loading-spinner"></span> Booking...';
+                btn.disabled = true;
+
+                const payload = {
+                    name: document.getElementById('schedule-name').value,
+                    email: document.getElementById('schedule-email').value,
+                    date: scheduleDate.value,
+                    time_slot: selectedTimeInput.value
+                };
+
+                try {
+                    const res = await fetch('/api/public/appointments/book', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(payload)
+                    });
+                    if(res.ok) {
+                        scheduleStep1.classList.add('hidden');
+                        step2.classList.add('hidden');
+                        scheduleSuccess.classList.remove('hidden');
+                    } else {
+                        const data = await res.json();
+                        alert(data.detail || "Failed to book slot. Please try again.");
+                    }
+                } catch(err) {
+                    alert("Network error. Please try again.");
+                } finally {
+                    btn.innerHTML = origText;
+                    btn.disabled = false;
+                }
+            });
+        }
+
+        window.resetScheduling = function() {
+            if (scheduleStep1) scheduleStep1.classList.remove('hidden');
+            if (scheduleSuccess) scheduleSuccess.classList.add('hidden');
+            if (step2) step2.classList.add('hidden');
+            if (slotsContainer) slotsContainer.classList.add('hidden');
+            if (scheduleForm) scheduleForm.reset();
+            if (scheduleDate) scheduleDate.value = '';
+            if (selectedTimeInput) selectedTimeInput.value = '';
+        };
+    </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        requestAnimationFrame(() => {
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = '1';
+            document.body.style.transition = 'opacity 0.3s';
+        });
+    });
+</script>
+</body>
+</html>
+

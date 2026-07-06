@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal & Policies - Sheetx.io</title>
+    <!-- Tailwind CSS (via CDN for simplicity, replace with build process for prod) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        dark: '#0f172a',
+                        primary: 'var(--tw-primary, #8b5cf6)',
+                        secondary: 'var(--tw-secondary, #3b82f6)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        .prose h1, .prose h2, .prose h3, .prose h4 { color: #f8fafc; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; }
+        .prose p { color: #94a3b8; line-height: 1.7; margin-bottom: 1.25rem; }
+        .prose ul { list-style-type: disc; padding-left: 1.5rem; color: #94a3b8; margin-bottom: 1.25rem; }
+        .prose a { color: #3b82f6; text-decoration: underline; }
+        .policy-tab.active { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; border-left: 3px solid #3b82f6; font-weight: 600; }
+        .policy-tab { border-left: 3px solid transparent; }
+    </style>
+    <link rel="stylesheet" href="/api/public/theme.css">
+    <style>body { visibility: hidden; opacity: 0; }</style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#0f172a] text-slate-200">
+
+    <!-- Floating Aesthetic Navbar -->
+    <header class="fixed top-0 left-0 right-0 z-50 pt-4 px-4 sm:px-6 lg:px-8 transition-all duration-300" id="main-nav">
+        <div class="max-w-7xl mx-auto">
+            <div class="navbar bg-dark/60 backdrop-blur-xl border border-white/10 rounded-full px-6 py-2 shadow-2xl shadow-primary/10 transition-all duration-300">
+                <div class="navbar-start">
+                    <a href="/" class="flex items-center gap-2 group">
+                        <div class="p-1 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors duration-300">
+                            <img src="/api/logo?v=3" alt="Logo" class="h-8 object-contain">
+                        </div>
+                    </a>
+                </div>
+                <div class="navbar-end gap-2 sm:gap-3">
+                    <a href="/client/" class="text-sm font-semibold text-gray-300 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-colors duration-300 hidden sm:inline-flex">Log in</a>
+                    <a href="/client/" class="btn btn-sm h-10 px-4 sm:px-6 rounded-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white border-none shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] transition-all duration-300">
+                        Get Started
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-32 pb-24 max-w-7xl mx-auto w-full px-6 relative z-10">
+        
+        <!-- Header Section -->
+        <div class="text-center mb-16" id="legal-header">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Documents & Policies</h1>
+            <p class="text-xl text-gray-400 font-light max-w-2xl mx-auto">Transparency, compliance, and trust are central to how Sheetx.io operates.</p>
+        </div>
+
+        <!-- Grid View (Default) -->
+        <div id="policy-grid-view">
+            <div id="policy-grid-loader" class="flex justify-center items-center h-64">
+                <span class="loading loading-spinner text-primary loading-lg"></span>
+            </div>
+            <!-- Grid container injected by JS -->
+            <div id="policy-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+                <!-- Cards go here -->
+            </div>
+        </div>
+
+        <!-- Reader View (When ?policy=slug) -->
+        <div id="policy-reader-view" class="hidden">
+            <div class="mb-8">
+                <a href="/legal.html" class="inline-flex items-center gap-2 text-primary hover:text-white transition-colors font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Return to all policies.
+                </a>
+            </div>
+            <div class="bg-base-200 border border-white/5 p-8 md:p-16 rounded-3xl shadow-xl max-w-4xl mx-auto">
+                <div id="policy-reader-loader" class="flex justify-center items-center h-64">
+                    <span class="loading loading-spinner text-primary loading-lg"></span>
+                </div>
+                <div id="policy-body" class="hidden">
+                    <h1 id="policy-title" class="text-4xl md:text-6xl font-bold text-white mb-8"></h1>
+                    <div id="policy-text" class="prose prose-invert max-w-none text-gray-300 prose-lg">
+                        <!-- Content injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-base-300/50 border-t border-white/5 pt-12 pb-8">
+        <div class="max-w-7xl mx-auto px-6 text-center text-sm text-gray-500">
+            <p>© 2026 Sheetx.io. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Include API Utility -->
+    <script src="/js/api.js"></script>
+    <!-- Include Legal Page Logic -->
+    <script src="/js/legal.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        requestAnimationFrame(() => {
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = '1';
+            document.body.style.transition = 'opacity 0.3s';
+        });
+    });
+</script>
+</body>
+</html>
+

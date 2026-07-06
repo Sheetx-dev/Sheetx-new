@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policies - Sheetx.io</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: { primary: 'var(--tw-primary, #8b5cf6)', secondary: 'var(--tw-secondary, #3b82f6)', dark: '#0f172a', card: '#1e293b' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: white; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .markdown-body h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: 1.5rem; color: white; }
+        .markdown-body h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; color: #e2e8f0; }
+        .markdown-body p { margin-bottom: 1rem; color: #cbd5e1; line-height: 1.6; }
+        .markdown-body ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; color: #cbd5e1; }
+        .markdown-body a { color: #818cf8; text-decoration: underline; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="/api/public/theme.css">
+    <style>body { visibility: hidden; opacity: 0; }</style>
+</head>
+<body class="antialiased selection:bg-primary selection:text-white flex flex-col min-h-screen">
+    <!-- Floating Aesthetic Navbar -->
+    <header class="fixed top-0 left-0 right-0 z-50 pt-4 px-4 sm:px-6 lg:px-8 transition-all duration-300" id="main-nav">
+        <div class="max-w-7xl mx-auto">
+            <div class="navbar bg-dark/60 backdrop-blur-xl border border-white/10 rounded-full px-6 py-2 shadow-2xl shadow-primary/10 transition-all duration-300">
+                <div class="navbar-start">
+                    <a href="/" class="flex items-center gap-2 group">
+                        <div class="p-1 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors duration-300">
+                            <img src="/api/logo?v=3" alt="Logo" class="h-8 object-contain">
+                        </div>
+                    </a>
+                </div>
+                <div class="navbar-end gap-2 sm:gap-3">
+                    <a href="/client/" class="text-sm font-semibold text-gray-300 hover:text-white px-4 py-2 rounded-full hover:bg-white/5 transition-colors duration-300 hidden sm:inline-flex">Log in</a>
+                    <a href="/client/" class="btn btn-sm h-10 px-4 sm:px-6 rounded-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white border-none shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] transition-all duration-300">
+                        Get Started
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="flex-1 max-w-4xl mx-auto px-6 py-12 w-full pt-32">
+        <div id="content" class="markdown-body glass p-8 md:p-12 rounded-2xl shadow-2xl">
+            <p class="text-center text-gray-400">Loading policy...</p>
+        </div>
+    </main>
+    <footer class="border-t border-white/10 py-6 mt-12 text-center text-gray-500 text-sm">
+        © 2026 Sheetx.io. All rights reserved.
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('p') || 'terms';
+            const contentDiv = document.getElementById('content');
+            try {
+                const p = await api.get(`/public/policies/${slug}`);
+                document.title = `${p.title} - Sheetx.io`;
+                contentDiv.innerHTML = marked.parse(p.content_md);
+            } catch(e) {
+                contentDiv.innerHTML = `<div class="text-center"><h1 class="text-3xl font-bold mb-4">404 - Not Found</h1><p class="text-gray-400">The policy you are looking for does not exist.</p><a href="/" class="inline-block mt-6 bg-primary hover:bg-indigo-500 text-white font-bold py-2 px-6 rounded-lg transition-colors">Go Home</a></div>`;
+            }
+        });
+    </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        requestAnimationFrame(() => {
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = '1';
+            document.body.style.transition = 'opacity 0.3s';
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin - Sheetx.io</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind & DaisyUI -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        primary: 'var(--tw-primary, #8b5cf6)',
+                        secondary: 'var(--tw-secondary, #3b82f6)',
+                        dark: '#0f172a',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        .page-section { display: none; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .page-section.active { display: block; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Override daisyUI primary */
+        :root {
+            --p: 258 79% 66%; /* #8b5cf6 */
+            --s: 217 91% 60%; /* #3b82f6 */
+        }
+    </style>
+    <link rel="stylesheet" href="/api/public/theme.css">
+    <style>body { visibility: hidden; opacity: 0; }</style>
+</head>
+<body class="antialiased h-screen overflow-hidden selection:bg-secondary selection:text-white bg-base-300 text-gray-200">
+
+    <!-- Auth Guard -->
+    <div id="admin-login-screen" class="fixed inset-0 z-50 bg-base-300 hidden items-center justify-center">
+        <div class="card bg-base-200 border border-white/5 shadow-2xl p-8 rounded-2xl w-full max-w-md text-center">
+            <h2 class="text-2xl font-bold mb-2">Super Admin Login</h2>
+            <p class="text-gray-400 mb-8">Access restricted to authorized administrators.</p>
+            <button onclick="window.location.href='/api/auth/google'" class="btn w-full flex items-center justify-center gap-3 bg-white text-dark hover:bg-gray-200 border-none shadow-lg">
+                <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Sign in with Google
+            </button>
+            <div class="mt-6">
+                <a href="/" class="link text-sm text-gray-400 hover:text-white">Back to site</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Initializing Loader (covers empty dashboard while checking token) -->
+    <div id="admin-global-loader" class="fixed bottom-6 right-6 bg-base-200 border border-white/10 shadow-2xl rounded-full px-5 py-3 z-[100] flex items-center gap-3 transition-opacity duration-300">
+        <span class="loading loading-spinner loading-sm text-primary"></span>
+        <p class="text-sm text-gray-300 font-medium" id="global-loader-text">Loading...</p>
+    </div>
+
+    
+
+        <!-- Drawer Wrapper -->
+    <div class="drawer lg:drawer-open h-full w-full">
+        <input id="portal-drawer" type="checkbox" class="drawer-toggle" />
+        
+        <!-- Main Content -->
+        <div class="drawer-content flex flex-col h-full relative z-10 overflow-hidden bg-base-300">
+            <!-- Topbar -->
+            <header class="h-16 border-b border-white/5 flex justify-between items-center px-4 md:px-8 bg-base-200 shadow-sm shrink-0">
+                <div class="flex items-center gap-3">
+                    <label for="portal-drawer" class="btn btn-square btn-ghost lg:hidden text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </label>
+                    <h2 id="topbar-title" class="text-xl font-bold">Super Admin</h2>
+                </div>
+            <div class="flex gap-4">
+                <button class="btn btn-sm btn-ghost bg-primary/10 text-primary hover:bg-primary/20 border-none" onclick="document.getElementById('notif-modal').showModal()">🔔 Broadcast Notification</button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-8 relative">
+            <!-- Dashboard Page -->
+            <section id="page-dashboard" class="page-section active max-w-7xl mx-auto">
+                <h1 class="text-3xl font-bold mb-8">Platform Overview</h1>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="stat bg-base-200 border border-white/5 rounded-2xl shadow-lg cursor-pointer hover:bg-base-300 transition-all" onclick="document.querySelector('[data-route=users]').click()">
+                        <div class="stat-title text-gray-400 font-semibold uppercase tracking-wider text-xs">Total Users</div>
+                        <div class="stat-value text-primary mt-1" id="stat-users">0</div>
+                    </div>
+                    <div class="stat bg-base-200 border border-white/5 rounded-2xl shadow-lg cursor-pointer hover:bg-base-300 transition-all" onclick="document.querySelector('[data-route=plans]').click()">
+                        <div class="stat-title text-gray-400 font-semibold uppercase tracking-wider text-xs">Active Plans</div>
+                        <div class="stat-value text-secondary mt-1" id="stat-plans">0</div>
+                    </div>
+                    <div class="stat bg-base-200 border border-white/5 rounded-2xl shadow-lg cursor-pointer hover:bg-base-300 transition-all" onclick="document.querySelector('[data-route=monitor]').click()">
+                        <div class="stat-title text-gray-400 font-semibold uppercase tracking-wider text-xs">Emails (24h)</div>
+                        <div class="stat-value mt-1" id="stat-emails">0</div>
+                    </div>
+                    <div class="stat bg-base-200 border border-white/5 rounded-2xl shadow-lg cursor-pointer hover:bg-base-300 transition-all" onclick="document.querySelector('[data-route=users]').click()">
+                        <div class="stat-title text-gray-400 font-semibold uppercase tracking-wider text-xs">Demos</div>
+                        <div class="stat-value text-error mt-1" id="stat-demos">0</div>
+                    </div>
+                </div>
+
+                  <div class="grid grid-cols-1 gap-8">
+                      <div class="card bg-base-200 border border-white/5 shadow-lg">
+                        <div class="card-body p-6">
+                            <h3 class="card-title text-lg mb-4">Global Volume (Last 7 Days)</h3>
+                            <div class="relative h-64 w-full">
+                                <canvas id="admin-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+                      <div class="card bg-base-200 border border-white/5 shadow-lg">
+                          <div class="card-body p-6">
+                              <h3 class="card-title text-lg mb-4">Demo Requests</h3>
+                              <div id="demo-requests-list" class="space-y-4 max-h-80 overflow-y-auto pr-2"></div>
+                          </div>
+                      </div>
+                      <div class="card bg-base-200 border border-white/5 shadow-lg">
+                          <div class="card-body p-6">
+                              <h3 class="card-title text-lg mb-4">User Feedback</h3>
+                              <div id="feedback-list" class="space-y-4 max-h-80 overflow-y-auto pr-2"></div>
+                          </div>
+                      </div>
+                  </div>
+              </section>
+
+
+            <!-- Sub-Admins Page -->
+            <section id="page-subadmins" class="page-section max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h1 class="text-3xl font-bold">Sub-Admins</h1>
+                    <button class="btn bg-white text-dark hover:bg-gray-200 border-none" onclick="document.getElementById('modal-subadmin').showModal()">+ Add Sub-Admin</button>
+                </div>
+                
+                <div class="card bg-base-200 border border-white/5 shadow-lg overflow-x-auto">
+                    <table class="table w-full">
+                        <thead>
+                            <tr class="text-gray-400 border-white/10">
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subadmins-tbody">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Users Page -->
+            <section id="page-users" class="page-section max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Client Management</h2>
+                </div>
+                
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-white">Active Clients</h3>
+                    <button id="btn-email-selected-active" class="btn btn-sm btn-primary hidden" onclick="openBulkAdminEmailModal(false)">Email Selected</button>
+                </div>
+                <div class="card bg-base-200 border border-white/5 shadow-lg overflow-x-auto mb-8">
+                    <table class="table table-zebra w-full text-left">
+                        <thead class="text-gray-400 text-sm uppercase tracking-wider border-b border-white/10">
+                            <tr>
+                                <th class="p-4 w-12"><input type="checkbox" id="selectAllActive" class="checkbox checkbox-sm checkbox-primary" onchange="toggleSelectAll(this, 'active')" /></th>
+                                <th class="p-4 font-semibold">Email</th>
+                                <th class="p-4 font-semibold">Company</th>
+                                <th class="p-4 font-semibold">Active Plan</th>
+                                <th class="p-4 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="client-list" class="border-t border-white/5">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-white">Demo Users</h3>
+                    <button id="btn-email-selected-demo" class="btn btn-sm btn-primary hidden" onclick="openBulkAdminEmailModal(true)">Email Selected</button>
+                </div>
+                <div class="card bg-base-200 border border-white/5 shadow-lg overflow-x-auto">
+                    <table class="table table-zebra w-full text-left">
+                        <thead class="text-gray-400 text-sm uppercase tracking-wider border-b border-white/10">
+                            <tr>
+                                <th class="p-4 w-12"><input type="checkbox" id="selectAllDemo" class="checkbox checkbox-sm checkbox-primary" onchange="toggleSelectAll(this, 'demo')" /></th>
+                                <th class="p-4 font-semibold">Email</th>
+                                <th class="p-4 font-semibold">Company</th>
+                                <th class="p-4 font-semibold">Active Plan</th>
+                                <th class="p-4 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="demo-user-list" class="border-t border-white/5">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Appointments Page -->
+            <section id="page-appointments" class="page-section max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Appointments</h2>
+                </div>
+                <div class="bg-base-100/50 rounded-2xl border border-white/10 overflow-hidden">
+                    <table class="table table-zebra w-full text-white">
+                        <thead class="bg-dark/50 text-gray-300">
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-appointments-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Plans Page -->
+            <section id="page-plans" class="page-section max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Pricing Plans</h2>
+                    <button class="btn bg-white hover:bg-gray-200 text-dark border-none" onclick="openPlanModal()">+ Create Plan</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="admin-plan-list"></div>
+            </section>
+
+            <!-- Promo Codes Page -->
+            <section id="page-promo" class="page-section max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Promo Codes</h2>
+                    <button class="btn bg-white hover:bg-gray-200 text-dark border-none" onclick="document.getElementById('modal-promo').showModal()">+ Generate Promo Code</button>
+                </div>
+                <div class="card bg-base-200 border border-white/5 shadow-lg overflow-x-auto">
+                    <table class="table table-zebra w-full text-left">
+                        <thead class="text-gray-400 text-sm uppercase tracking-wider border-b border-white/10">
+                            <tr>
+                                <th class="p-4 font-semibold">Code</th>
+                                <th class="p-4 font-semibold">Discount (%)</th>
+                                <th class="p-4 font-semibold">Uses</th>
+                                <th class="p-4 font-semibold">Max Uses</th>
+                                <th class="p-4 font-semibold">Status</th>
+                                <th class="p-4 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="promo-list" class="border-t border-white/5">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Global Monitor Page -->
+            <section id="page-monitor" class="page-section max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Global Monitor</h2>
+                    <button class="btn btn-sm btn-outline border-white/20 text-white hover:bg-white hover:text-black" onclick="loadGlobalLogs()">Refresh Logs</button>
+                </div>
+                <div class="card bg-base-200 border border-white/5 shadow-lg overflow-x-auto">
+                    <table class="table table-zebra w-full text-left">
+                        <thead class="text-gray-400 text-sm uppercase tracking-wider border-b border-white/10">
+                            <tr>
+                                <th class="p-4 font-semibold">Client</th>
+                                <th class="p-4 font-semibold">Recipient</th>
+                                <th class="p-4 font-semibold">Status</th>
+                                <th class="p-4 font-semibold">Timestamp</th>
+                                <th class="p-4 font-semibold">Error</th>
+                            </tr>
+                        </thead>
+                        <tbody id="global-log-list" class="border-t border-white/5">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Settings Page -->
+            <section id="page-settings" class="page-section max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold mb-8">Global Settings</h2>
+                <div class="card bg-base-200 border border-white/5 shadow-lg max-w-3xl">
+
+                    <div class="card-body p-8">
+                        <form id="form-admin-settings" class="space-y-6">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400 font-medium">Global Default Groq Key</span></label>
+                                <input type="password" id="admin-groq" class="input input-bordered bg-base-300 border-white/10 focus:border-secondary" placeholder="Enter API Key">
+                                <label class="label"><span class="label-text-alt text-gray-400">Used for categorizing leads.</span></label>
+                            </div>
+                            
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400 font-medium">Default Trial Duration (Days)</span></label>
+                                <input type="number" id="admin-trial-days" class="input input-bordered bg-base-300 border-white/10" placeholder="5" value="5">
+                                <label class="label"><span class="label-text-alt text-gray-400">Number of days before trial users are locked out.</span></label>
+                            </div>
+                            <div class="divider border-white/5">Landing Page Settings</div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400 font-medium">"How It Works" Section Title</span></label>
+                                <input type="text" id="admin-how-it-works-title" class="input input-bordered bg-base-300 border-white/10" placeholder="e.g. How it works">
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400 font-medium">"How It Works" Section Subtitle</span></label>
+                                <input type="text" id="admin-how-it-works-subtitle" class="input input-bordered bg-base-300 border-white/10" placeholder="e.g. Set up your entire automation engine in less than 5 minutes.">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text text-gray-400 font-medium">Primary Color</span></label>
+                                    <div class="flex items-center gap-4">
+                                        <input type="color" id="admin-landing-color-primary" class="w-12 h-12 p-1 rounded bg-base-300 border border-white/10" value="#8b5cf6">
+                                        <input type="text" id="admin-landing-color-primary-text" class="input input-bordered bg-base-300 border-white/10 focus:border-secondary flex-1" value="#8b5cf6">
+                                    </div>
+                                </div>
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text text-gray-400 font-medium">Secondary Color</span></label>
+                                    <div class="flex items-center gap-4">
+                                        <input type="color" id="admin-landing-color-secondary" class="w-12 h-12 p-1 rounded bg-base-300 border border-white/10" value="#3b82f6">
+                                        <input type="text" id="admin-landing-color-secondary-text" class="input input-bordered bg-base-300 border-white/10 focus:border-secondary flex-1" value="#3b82f6">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400 font-medium">Google Service Account Email</span></label>
+                                <input type="email" id="admin-gcp-email" class="input input-bordered bg-base-300 border-white/10 focus:border-secondary" placeholder="service-account@project.iam.gserviceaccount.com">
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400 font-medium">Google Service Account JSON</span></label>
+                                <textarea id="admin-gcp-json" class="textarea textarea-bordered bg-base-300 border-white/10 focus:border-secondary font-mono text-xs h-32" placeholder="{...}"></textarea>
+                            </div>
+                            <hr class="border-white/10 my-4">
+                            <h3 class="text-xl font-bold mb-4 text-error">Platform Controls</h3>
+                            <div class="form-control mb-4">
+                                <label class="cursor-pointer label justify-start gap-4">
+                                    <input type="checkbox" id="admin-maintenance" class="toggle toggle-error" />
+                                    <span class="label-text text-gray-300"><b>Maintenance Mode</b> (Blocks all clients from accessing the portal)</span>
+                                </label>
+                            </div>
+                            <hr class="border-white/10 my-4">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400 font-medium">Razorpay Key ID</span></label>
+                                <input type="text" id="admin-rzp-key" class="input input-bordered bg-base-300 border-white/10 focus:border-secondary" placeholder="rzp_live_...">
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400 font-medium">Razorpay Secret</span></label>
+                                <input type="password" id="admin-rzp-secret" class="input input-bordered bg-base-300 border-white/10 focus:border-secondary" placeholder="Secret Key">
+                            </div>
+                            <hr class="border-white/10 my-4">
+                            <h3 class="text-xl font-bold mb-4">Branding</h3>
+                            <div class="form-control mb-4">
+                                <label class="label"><span class="label-text text-gray-400 font-medium">Site Logo</span></label>
+                                <div class="flex items-center gap-4 mb-4">
+                                    <img id="admin-current-logo" src="/api/logo" class="h-12 object-contain bg-base-200 rounded p-1 hidden" onerror="this.classList.add('hidden')">
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <input type="file" id="admin-logo-upload" accept="image/*" class="file-input file-input-bordered bg-base-300 border-white/10 w-full max-w-xs" />
+                                    <button type="button" class="btn btn-primary" onclick="uploadLogo()">Upload Logo</button>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2">Recommended: PNG with transparent background.</p>
+                            </div>
+                            <button type="submit" class="btn btn-secondary text-white w-full mt-8">Save Global Settings</button>
+                        </form>
+                    </div>
+              </div>
+            </section>
+
+            <!-- WhatsApp Engine Page -->
+            <section id="page-whatsapp" class="page-section max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">WhatsApp Engine (Global)</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="card bg-base-200 border border-white/5 shadow-lg">
+                        <div class="card-body p-8">
+                            <h3 class="card-title text-xl mb-6 flex items-center gap-2">
+                                <svg class="w-6 h-6 text-green-500" viewBox="0 0 24 24"><path fill="currentColor" d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91 0-5.46-4.45-9.91-9.91-9.91zm5.36 14.16c-.22.64-1.28 1.24-1.8 1.34-.49.09-1.12.16-1.93-.1-1.63-.53-3.69-2.31-4.84-3.83-.82-1.07-1.48-2.58-1.5-4.13-.02-1.52.79-2.28 1.07-2.6.28-.31.61-.39.81-.39.2 0 .4.01.57.02.19.01.44-.07.67.48.24.58.82 2.01.89 2.16.07.15.13.33.02.55-.1.21-.16.35-.32.53-.15.18-.33.41-.46.54-.15.15-.31.32-.14.61.17.29.77 1.27 1.66 2.06 1.15 1.02 2.1 1.34 2.39 1.48.29.14.46.12.63-.07.18-.19.78-.9 1-1.22.21-.31.42-.26.68-.16.27.1 1.72.81 2.02.96.3.15.5.22.57.34.07.13.07.74-.15 1.38z"/></svg>
+                                WhatsApp API Credentials
+                            </h3>
+                            <form id="form-admin-whatsapp" class="space-y-4">
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text text-gray-400">System User Access Token</span></label>
+                                    <input type="text" id="admin-wa-token" class="input input-bordered bg-base-300 border-white/10" required>
+                                </div>
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text text-gray-400">Phone Number ID</span></label>
+                                    <input type="text" id="admin-wa-phone-id" class="input input-bordered bg-base-300 border-white/10" required>
+                                </div>
+                                <div class="form-control">
+                                    <label class="label"><span class="label-text text-gray-400">WhatsApp Business Account ID</span></label>
+                                    <input type="text" id="admin-wa-business-id" class="input input-bordered bg-base-300 border-white/10" required>
+                                </div>
+                                <div class="flex justify-between items-center mt-6">
+                                    <button type="submit" class="btn btn-primary text-white">Save Credentials</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card bg-base-200 border border-white/5 shadow-lg">
+                        <div class="card-body p-8">
+                            <h3 class="card-title text-xl mb-4">Meta Templates</h3>
+                            <p class="text-gray-400 text-sm mb-6">Fetch approved templates directly from your Meta Business account to use in global broadcasts.</p>
+                            
+                            <div class="form-control mb-6">
+                                <label class="label"><span class="label-text text-gray-400">Synced Templates</span></label>
+                                <select id="admin-wa-template" class="select select-bordered bg-base-300 border-white/10 w-full">
+                                    <option value="">Fetch templates first...</option>
+                                </select>
+                            </div>
+                            
+                            <button id="btn-admin-refresh-templates" class="btn btn-outline border-white/20 text-white w-full">Fetch / Refresh Templates</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Landing Page Content Editor -->
+            <section id="page-landing" class="page-section max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold mb-8">Landing Page Content</h2>
+                <div class="card bg-base-200 border border-white/5 shadow-lg max-w-4xl">
+                    <div class="card-body p-8">
+                        <form id="form-admin-landing" class="space-y-8">
+                            <!-- Hero Section Editor -->
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Hero Section</h3>
+                                <p class="text-gray-400 text-sm mb-4">Manage the main text at the top of your landing page.</p>
+                                <div class="space-y-4">
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">Top Badge Text</span></label>
+                                        <input type="text" id="set-hero-badge" class="input input-bordered bg-dark/50" placeholder="e.g. Built for Scale" />
+                                    </div>
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">Main Title (HTML allowed)</span></label>
+                                        <textarea id="set-hero-title" class="textarea textarea-bordered bg-dark/50 h-24" placeholder="Automate your outreach..."></textarea>
+                                    </div>
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">Subtitle</span></label>
+                                        <textarea id="set-hero-subtitle" class="textarea textarea-bordered bg-dark/50 h-24" placeholder="Connect your Google Sheets..."></textarea>
+                                    </div>
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">Call To Action Button Text</span></label>
+                                        <input type="text" id="set-hero-cta" class="input input-bordered bg-dark/50" placeholder="e.g. Book a Demo" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="border-white/10">
+
+                            <!-- Features Section Editor -->
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Features Section</h3>
+                                <p class="text-gray-400 text-sm mb-4">Manage the features grid.</p>
+                                <div class="space-y-4 mb-4">
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">Features Section Title</span></label>
+                                        <input type="text" id="set-features-title" class="input input-bordered bg-dark/50" />
+                                    </div>
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">Features Section Subtitle</span></label>
+                                        <input type="text" id="set-features-subtitle" class="input input-bordered bg-dark/50" />
+                                    </div>
+                                </div>
+                                <div id="features-builder-container" class="space-y-4 mb-4">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline border-white/20 text-white" onclick="addFeatureRow()">+ Add Feature</button>
+                                <textarea id="landing-features" class="hidden"></textarea>
+                            </div>
+
+                            <hr class="border-white/10">
+
+                            <!-- Steps Editor -->
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">How It Works (Steps)</h3>
+                                <p class="text-gray-400 text-sm mb-4">Manage the step-by-step instructions.</p>
+                                <div id="steps-builder-container" class="space-y-4 mb-4">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline border-white/20 text-white" onclick="addStepRow()">+ Add Step</button>
+                                <textarea id="landing-steps" class="hidden"></textarea>
+                            </div>
+
+                            <hr class="border-white/10">
+
+                            <!-- FAQ Editor -->
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Frequently Asked Questions</h3>
+                                <p class="text-gray-400 text-sm mb-4">Manage the questions and answers displayed on the landing page.</p>
+                                <div id="faq-builder-container" class="space-y-4 mb-4">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline border-white/20 text-white" onclick="addFaqRow()">+ Add Question</button>
+                                <textarea id="landing-faq" class="hidden"></textarea>
+                            </div>
+
+                            <hr class="border-white/10">
+
+                            <!-- Testimonials Editor -->
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Testimonials</h3>
+                                <p class="text-gray-400 text-sm mb-4">Manage the customer reviews shown on the landing page.</p>
+                                <div id="reviews-builder-container" class="space-y-4 mb-4">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline border-white/20 text-white" onclick="addReviewRow()">+ Add Review</button>
+                                <textarea id="landing-reviews" class="hidden"></textarea>
+                            </div>
+
+                            <hr class="border-white/10">
+
+                            <!-- Footer Editor -->
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Footer Columns</h3>
+                                <p class="text-gray-400 text-sm mb-4">Manage the links in the footer. Links ending in "policy" or "terms" will automatically redirect to the Legal page.</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="footer-builder-container">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                                <textarea id="landing-footer" class="hidden"></textarea>
+                            </div>
+
+                            <hr class="border-white/10">
+
+                            <!-- Partnership Section -->
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Partnership Section</h3>
+                                <div class="form-control w-full mt-4">
+                                    <label class="label"><span class="label-text">Partner Title (HTML allowed)</span></label>
+                                    <input type="text" id="set-partner-title" class="input input-bordered w-full bg-dark/50" placeholder="Partner With SheetX" />
+                                </div>
+                                <div class="form-control w-full mt-4">
+                                    <label class="label"><span class="label-text">Partner Subtitle</span></label>
+                                    <textarea id="set-partner-subtitle" class="textarea textarea-bordered h-24 bg-dark/50" placeholder="Are you an agency..."></textarea>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                                    <div class="bg-base-300 p-4 rounded-xl border border-white/5">
+                                        <h4 class="font-bold mb-4">Benefit 1</h4>
+                                        <div class="form-control w-full">
+                                            <label class="label"><span class="label-text text-xs">Title</span></label>
+                                            <input type="text" id="set-partner-b1-title" class="input input-bordered input-sm w-full bg-dark/50" />
+                                        </div>
+                                        <div class="form-control w-full mt-2">
+                                            <label class="label"><span class="label-text text-xs">Description</span></label>
+                                            <textarea id="set-partner-b1-desc" class="textarea textarea-bordered textarea-sm h-20 bg-dark/50"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="bg-base-300 p-4 rounded-xl border border-white/5">
+                                        <h4 class="font-bold mb-4">Benefit 2</h4>
+                                        <div class="form-control w-full">
+                                            <label class="label"><span class="label-text text-xs">Title</span></label>
+                                            <input type="text" id="set-partner-b2-title" class="input input-bordered input-sm w-full bg-dark/50" />
+                                        </div>
+                                        <div class="form-control w-full mt-2">
+                                            <label class="label"><span class="label-text text-xs">Description</span></label>
+                                            <textarea id="set-partner-b2-desc" class="textarea textarea-bordered textarea-sm h-20 bg-dark/50"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="bg-base-300 p-4 rounded-xl border border-white/5">
+                                        <h4 class="font-bold mb-4">Benefit 3</h4>
+                                        <div class="form-control w-full">
+                                            <label class="label"><span class="label-text text-xs">Title</span></label>
+                                            <input type="text" id="set-partner-b3-title" class="input input-bordered input-sm w-full bg-dark/50" />
+                                        </div>
+                                        <div class="form-control w-full mt-2">
+                                            <label class="label"><span class="label-text text-xs">Description</span></label>
+                                            <textarea id="set-partner-b3-desc" class="textarea textarea-bordered textarea-sm h-20 bg-dark/50"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-secondary text-white w-full">Save Landing Page Content</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Policies Page -->
+            <section id="page-policies" class="page-section max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Legal Policies CMS</h2>
+                    <button class="btn bg-white hover:bg-gray-200 text-dark border-none" onclick="openPolicyModal()">+ Add Policy</button>
+                </div>
+                <div class="card bg-base-200 border border-white/5 shadow-lg">
+                    <div class="card-body p-6">
+                        <div id="policy-list" class="space-y-4"></div>
+                    </div>
+                </div>
+            </section>
+            <!-- Newsletter Page -->
+            <section id="page-newsletter" class="page-section max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-bold">Newsletter Subscribers</h2>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Subscribers List -->
+                    <div class="lg:col-span-2 card bg-base-200 border border-white/5 shadow-lg">
+                        <div class="card-body p-0 overflow-x-auto">
+                            <table class="table w-full">
+                                <thead class="bg-dark/50 text-gray-400">
+                                    <tr>
+                                        <th>
+                                            <label>
+                                                <input type="checkbox" id="nl-select-all" class="checkbox checkbox-sm checkbox-primary" />
+                                            </label>
+                                        </th>
+                                        <th>Email</th>
+                                        <th>Mobile</th>
+                                        <th>Subscribed Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="newsletter-tbody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Broadcast Panel -->
+                    <div class="card bg-base-200 border border-white/5 shadow-lg h-fit">
+                        <div class="card-body p-6">
+                            <div class="tabs tabs-boxed mb-4 bg-dark/50 p-1">
+                                <a class="tab tab-active" id="tab-nl-email" onclick="switchNlTab('email')">Email</a>
+                                <a class="tab" id="tab-nl-whatsapp" onclick="switchNlTab('whatsapp')">WhatsApp</a>
+                            </div>
+                            
+                            <!-- Email Tab Content -->
+                            <div id="nl-email-content">
+                                <div class="form-control mb-4">
+                                    <label class="label"><span class="label-text">1. Tell AI what to write</span></label>
+                                    <textarea id="nl-ai-prompt" class="textarea textarea-bordered h-24 focus:border-secondary" placeholder="Write a short newsletter announcing our new integration with Zapier..."></textarea>
+                                </div>
+                                
+                                <button id="btn-nl-generate" class="btn btn-outline btn-secondary w-full mb-6">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    Generate Email
+                                </button>
+                                
+                                <div class="divider text-gray-500 text-sm">OR WRITE MANUALLY</div>
+
+                                <form id="form-nl-broadcast" class="space-y-4">
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">Subject Line</span></label>
+                                        <input type="text" id="nl-subject" class="input input-bordered focus:border-primary" required>
+                                    </div>
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">Email Body (HTML)</span></label>
+                                        <textarea id="nl-body" class="textarea textarea-bordered h-48 font-mono text-sm focus:border-primary" required></textarea>
+                                    </div>
+                                    <div class="flex gap-2 mt-4">
+                                        <button type="button" id="btn-nl-preview" class="btn btn-outline border-white/20 hover:bg-white/10 flex-1">Preview</button>
+                                        <button type="submit" class="btn bg-primary hover:bg-violet-600 text-white border-none flex-1">Send Broadcast</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- WhatsApp Tab Content -->
+                            <div id="nl-whatsapp-content" class="hidden">
+                                <form id="form-nl-wa-broadcast" class="space-y-4">
+                                    <div class="form-control">
+                                        <label class="label"><span class="label-text">WhatsApp Template Name</span></label>
+                                        <input type="text" id="nl-wa-template" class="input input-bordered focus:border-green-500" placeholder="e.g. newsletter_update_01" required>
+                                        <label class="label"><span class="label-text-alt text-gray-400">Must be a pre-approved Meta template.</span></label>
+                                    </div>
+                                    <button type="submit" class="btn bg-green-600 hover:bg-green-700 text-white w-full border-none mt-4">
+                                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                        Send WhatsApp Broadcast
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Credentials Page -->
+            <section id="page-credentials" class="page-section max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold mb-8">System Credentials (DANGER)</h2>
+                <div class="alert alert-warning shadow-lg mb-8 bg-warning/20 text-warning-content border border-warning/50">
+                    <div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6 text-warning" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                        <span><strong>Warning!</strong> Double check these fields before saving. Incorrect values will break core platform functionality!</span>
+                    </div>
+                </div>
+                <div class="card bg-base-200 border border-white/5 shadow-lg max-w-4xl">
+                    <div class="card-body p-8">
+                        <form id="form-admin-credentials" class="space-y-6">
+                            <h3 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Auth & Encryption</h3>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400">JWT Secret</span></label>
+                                <input type="password" id="cred-jwt" class="input input-bordered bg-base-300 border-white/10" required>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-4 mt-8 border-b border-white/10 pb-2">Google Integrations</h3>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400">OAuth Client ID (Login)</span></label>
+                                <input type="text" id="cred-google-id" class="input input-bordered bg-base-300 border-white/10" required>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400">OAuth Client Secret</span></label>
+                                <input type="password" id="cred-google-secret" class="input input-bordered bg-base-300 border-white/10" required>
+                            </div>
+                            <div class="form-control mt-4">
+                                <label class="label"><span class="label-text text-gray-400">Service Account JSON (Google Sheets API)</span></label>
+                                <textarea id="cred-gcp-json" class="textarea textarea-bordered bg-base-300 border-white/10 font-mono text-xs h-32"></textarea>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-4 mt-8 border-b border-white/10 pb-2">Payments (Razorpay)</h3>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400">Key ID</span></label>
+                                <input type="text" id="cred-rzp-id" class="input input-bordered bg-base-300 border-white/10" required>
+                            </div>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400">Key Secret</span></label>
+                                <input type="password" id="cred-rzp-secret" class="input input-bordered bg-base-300 border-white/10" required>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-4 mt-8 border-b border-white/10 pb-2">AI Settings</h3>
+                            <div class="form-control">
+                                <label class="label"><span class="label-text text-gray-400">Groq API Key</span></label>
+                                <input type="password" id="cred-groq" class="input input-bordered bg-base-300 border-white/10" required>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-error text-white w-full mt-8">Save Credentials</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
+        </div> <!-- End drawer-content -->
+        
+        <!-- Drawer Side (Sidebar) -->
+        <div class="drawer-side z-50">
+            <label for="portal-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+            <!-- Sidebar -->
+    <aside class="w-64 bg-base-200 border-r border-white/5 flex flex-col h-full z-20 shrink-0 shadow-2xl shadow-black/50">
+        <div class="p-6 border-b border-white/5 flex justify-center">
+            <a href="#dashboard" class="flex items-center gap-2">
+                <img src="/api/logo?v=3" alt="Sheetx Logo" class="h-8 object-contain">
+            </a>
+        </div>
+        <nav class="flex-1 p-4 overflow-y-auto">
+              <ul class="menu w-full p-0 space-y-2">
+                  <li><a class="nav-item active" data-route="dashboard">Dashboard</a></li>
+                  <li><a class="nav-item" data-route="users">Users & Clients</a></li>
+                  <li><a class="nav-item" data-route="appointments">Appointments</a></li>
+                  <li><a class="nav-item" data-route="newsletter">Newsletter</a></li>
+                  <li><a class="nav-item" data-route="monitor">Global Monitor</a></li>
+                  <li><a class="nav-item" data-route="whatsapp">WhatsApp Engine</a></li>
+                  
+                  <div class="divider my-2 border-white/10 super-admin-only"></div>
+                  
+                  <li class="super-admin-only"><a class="nav-item" data-route="plans">Pricing Plans</a></li>
+                  <li class="super-admin-only"><a class="nav-item" data-route="promo">Promo Codes</a></li>
+                  <li class="super-admin-only"><a class="nav-item" data-route="subadmins">Sub-Admins</a></li>
+                  <li class="super-admin-only"><a class="nav-item" data-route="settings">App Settings</a></li>
+                  <li class="super-admin-only"><a class="nav-item" data-route="credentials">System Credentials</a></li>
+                  <li class="super-admin-only"><a class="nav-item" data-route="landing">Landing Page</a></li>
+                  <li class="super-admin-only"><a class="nav-item" data-route="policies">Policies (CMS)</a></li>
+              </ul>
+          </nav>
+        <div class="p-4 border-t border-white/5">
+            <button id="btn-admin-logout" class="btn btn-outline btn-sm w-full border-white/10 hover:bg-white/10 text-gray-400">Lock Admin</button>
+        </div>
+    </aside>
+        </div>
+    </div> <!-- End drawer -->
+
+    <!-- Modals (DaisyUI) -->
+    
+    <!-- Client Change Plan Modal -->
+    <dialog id="client-change-plan-modal" class="modal">
+        <div class="modal-box bg-base-100 border border-white/10 shadow-2xl">
+            <h3 class="font-bold text-lg mb-4 text-white">Change Client Plan</h3>
+            <form id="form-change-plan" class="space-y-4">
+                <input type="hidden" id="change-plan-client-id" />
+                
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-gray-300">Select Plan</span></label>
+                    <select id="change-plan-select" class="select select-bordered w-full bg-dark text-white border-white/20" required>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-gray-300">Subscription Duration</span></label>
+                    <select id="change-plan-duration" class="select select-bordered w-full bg-dark text-white border-white/20" required>
+                        <option value="1_month">1 Month</option>
+                        <option value="1_year">1 Year</option>
+                        <option value="lifetime">Lifetime</option>
+                    </select>
+                </div>
+
+                <div class="modal-action mt-6">
+                    <button type="button" class="btn btn-ghost text-gray-400 hover:text-white" onclick="document.getElementById('client-change-plan-modal').close()">Cancel</button>
+                    <button type="submit" class="btn btn-primary shadow-lg shadow-primary/30">Save Changes</button>
+                </div>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- Plan Modal -->
+    <dialog id="plan-modal" class="modal">
+        <div class="modal-box bg-base-100 border border-white/10">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-2xl mb-6" id="plan-modal-title">Create Plan</h3>
+            <form id="form-plan" class="space-y-4">
+                <input type="hidden" id="plan-id">
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-gray-400">Plan Name</span></label>
+                    <input type="text" id="plan-name" class="input input-bordered bg-base-200 border-white/10 focus:border-secondary" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text text-gray-400">Monthly Price ($)</span></label>
+                        <input type="number" id="plan-price" class="input input-bordered bg-base-200 border-white/10 focus:border-secondary" required>
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text text-gray-400">Daily Email Limit</span></label>
+                        <input type="number" id="plan-limit" class="input input-bordered bg-base-200 border-white/10 focus:border-secondary" required>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text text-gray-400">6-Monthly Price ($)</span></label>
+                        <input type="number" id="plan-price-half-yearly" class="input input-bordered bg-base-200 border-white/10 focus:border-secondary" required>
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text text-gray-400">Yearly Price ($)</span></label>
+                        <input type="number" id="plan-price-yearly" class="input input-bordered bg-base-200 border-white/10 focus:border-secondary" required>
+                    </div>
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-gray-400">Campaign Limit (Sheets)</span></label>
+                    <input type="number" id="plan-campaign-limit" class="input input-bordered bg-base-200 border-white/10 focus:border-secondary" value="3" min="1" required>
+                    <label class="label"><span class="label-text-alt text-gray-400">Max number of Google Sheets a user on this plan can connect.</span></label>
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-gray-400">Features (One per line)</span></label>
+                    <textarea id="plan-features" class="textarea textarea-bordered bg-base-200 border-white/10 focus:border-secondary font-mono text-xs h-24" placeholder="Unlimited sends&#10;AI Match&#10;Premium Support"></textarea>
+                </div>
+                
+                <div class="form-control mb-4 bg-base-300/50 p-4 rounded-xl border border-white/5">
+                    <label class="label cursor-pointer justify-start gap-4">
+                        <input type="checkbox" id="plan-has-ai" class="toggle toggle-secondary">
+                        <div>
+                            <span class="label-text font-medium text-white block">Enable AI Templates</span>
+                            <span class="label-text-alt text-gray-400">Allows users on this plan to auto-generate templates using Groq AI.</span>
+                        </div>
+                    </label>
+                    <div class="mt-4 pl-12">
+                        <label class="label"><span class="label-text text-gray-400">AI Daily Limit (-1 for unlimited)</span></label>
+                        <input type="number" id="plan-ai-limit" class="input input-bordered bg-base-200 border-white/10 focus:border-secondary w-full max-w-xs" value="-1" min="-1" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-secondary text-white w-full mt-4">Save Plan</button>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    <!-- Policy Modal -->
+    <dialog id="policy-modal" class="modal">
+        <div class="modal-box w-11/12 max-w-4xl bg-base-100 border border-white/10">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-2xl mb-6">Edit Policy</h3>
+            <form id="form-policy" class="space-y-4">
+                <input type="hidden" id="pol-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text text-gray-400">Slug (e.g. terms)</span></label>
+                        <input type="text" id="pol-slug" class="input input-bordered bg-base-200 border-white/10 focus:border-secondary" required>
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text text-gray-400">Title</span></label>
+                        <input type="text" id="pol-title" class="input input-bordered bg-base-200 border-white/10 focus:border-secondary" required>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text text-gray-400">Icon (Emoji/SVG)</span></label>
+                        <input type="text" id="pol-icon" class="input input-bordered bg-base-200 border-white/10 focus:border-secondary" placeholder="📜">
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text text-gray-400">Description (Short subtitle)</span></label>
+                        <input type="text" id="pol-desc" class="input input-bordered bg-base-200 border-white/10 focus:border-secondary" placeholder="Rules governing the use of services.">
+                    </div>
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-gray-400">Markdown Content</span></label>
+                    <textarea id="pol-content" class="textarea textarea-bordered bg-base-200 border-white/10 focus:border-secondary font-mono text-sm min-h-[300px]" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-secondary text-white w-full">Save Policy</button>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    <!-- Notification Broadcast Modal -->
+    <dialog id="notif-modal" class="modal">
+        <div class="modal-box bg-base-100 border border-white/10">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">?</button>
+            </form>
+            <h3 class="font-bold text-2xl mb-6">Broadcast Announcement</h3>
+            <form id="form-notif" class="space-y-4">
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-gray-400">Message</span></label>
+                    <textarea id="notif-msg" class="textarea textarea-bordered bg-base-200 border-white/10 focus:border-secondary h-32" required></textarea>
+                </div>
+                <div class="form-control">
+                    <label class="cursor-pointer label justify-start gap-4">
+                        <input type="checkbox" id="notif-send-email" class="checkbox checkbox-primary">
+                        <span class="label-text text-gray-300">Also send as Email to all users</span>
+                    </label>
+                </div>
+                <div class="form-control">
+                    <label class="cursor-pointer label justify-start gap-4">
+                        <input type="checkbox" id="notif-send-whatsapp" class="checkbox checkbox-success">
+                        <span class="label-text text-gray-300">Also send as WhatsApp to all users</span>
+                    </label>
+                </div>
+                <div class="form-control" id="notif-wa-template-container" style="display: none;">
+                    <label class="label"><span class="label-text text-gray-400">Select WhatsApp Template</span></label>
+                    <select id="notif-whatsapp-template" class="select select-bordered bg-base-200 border-white/10 w-full">
+                        <option value="">(None fetched)</option>
+                    </select>
+                </div>
+                <div class="form-control" id="notif-subject-container" style="display: none;">
+                    <label class="label"><span class="label-text text-gray-400">Email Subject</span></label>
+                    <input type="text" id="notif-subject" class="input input-bordered bg-base-200 border-white/10" placeholder="Important Announcement">
+                </div>
+                <button type="submit" class="btn btn-primary text-white w-full">Send to All Users</button>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    <!-- Admin Email Modal -->
+    <dialog id="admin-email-modal" class="modal">
+        <div class="modal-box w-11/12 max-w-2xl bg-base-100 border border-white/10">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">?</button>
+            </form>
+            <h3 class="font-bold text-2xl mb-6 text-white" id="admin-email-modal-title">Send Email to User</h3>
+            <form id="form-admin-email" class="space-y-4">
+                <div class="form-control">
+                    <label class="label"><span class="label-text text-gray-200 font-semibold">To Email</span></label>
+                    <input type="text" id="admin-email-to" class="input input-bordered bg-base-300 border-white/10 text-white font-bold" required readonly>
+                </div>
+                
+                <div class="form-control">
+                    <label class="label pb-1">
+                        <span class="label-text text-gray-200 font-semibold">Subject & Body</span>
+                        <button type="button" class="btn btn-xs btn-outline btn-primary shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform" onclick="generateAdminEmailAI()" id="btn-admin-ai">
+                            ✨ AI Assist
+                        </button>
+                    </label>
+                    <input type="text" id="admin-email-subject" placeholder="Subject" class="input input-bordered bg-base-300 border-white/10 text-white mb-3" required>
+                    <textarea id="admin-email-body" placeholder="Body (HTML allowed)... Or click AI Assist to write it for you!" class="textarea textarea-bordered bg-base-300 border-white/10 text-white focus:border-primary h-48" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary text-white w-full">Send Email</button>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    <!-- Client Details Modal -->
+    <dialog id="client-details-modal" class="modal">
+        <div class="modal-box w-11/12 max-w-2xl bg-base-100 border border-white/10">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-2xl mb-2">Client Details</h3>
+            <div id="cd-content" class="mt-6">
+                <!-- Injected via JS -->
+            </div>
+            <div class="modal-action">
+                <form method="dialog">
+                    <button class="btn btn-ghost">Close</button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    <dialog id="global-modal" class="modal">
+        <div class="modal-box bg-base-100 border border-white/10">
+            <h3 class="font-bold text-lg" id="modal-title"></h3>
+            <p class="py-4" id="modal-content"></p>
+            <div class="modal-action">
+                <form method="dialog">
+                    <button class="btn btn-outline">Close</button>
+                    <button class="btn btn-primary ml-2" id="modal-confirm">Confirm</button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <dialog id="nl-preview-modal" class="modal">
+        <div class="modal-box bg-base-100 border border-white/10 max-w-3xl w-11/12 h-5/6 flex flex-col">
+            <h3 class="font-bold text-lg mb-2">Email Preview</h3>
+            <div class="text-sm text-gray-400 mb-4 pb-2 border-b border-white/10">
+                <strong>Subject:</strong> <span id="nl-preview-subject"></span>
+            </div>
+            <div id="nl-preview-body" class="flex-grow overflow-y-auto bg-white text-black p-6 rounded-md min-h-0">
+                <!-- HTML rendered here -->
+            </div>
+            <div class="modal-action mt-4">
+                <form method="dialog">
+                    <button class="btn btn-outline border-white/20 hover:bg-white/10">Close Preview</button>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- Client Manage Features Modal -->
+    <dialog id="client-features-modal" class="modal">
+        <div class="modal-box bg-base-100 border border-white/10">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-2xl mb-2">Manage Client Features</h3>
+            <p class="text-gray-400 text-sm mb-6" id="cf-email"></p>
+            <form id="form-client-features" class="space-y-4">
+                <input type="hidden" id="cf-id">
+                
+                <div class="form-control">
+                    <label class="cursor-pointer label justify-start gap-4">
+                        <input type="checkbox" id="cf-ai" class="checkbox checkbox-secondary">
+                        <span class="label-text text-white">Enable AI Matcher</span>
+                    </label>
+                </div>
+                <div class="form-control">
+                    <label class="cursor-pointer label justify-start gap-4">
+                        <input type="checkbox" id="cf-whitelabel" class="checkbox checkbox-secondary">
+                        <span class="label-text text-white">White-label Domains</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-secondary text-white w-full mt-4">Save Configuration</button>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    
+    <!-- Sub-Admin Modal -->
+    <dialog id="modal-subadmin" class="modal backdrop-blur-sm">
+        <div class="modal-box bg-base-200 border border-white/10 shadow-2xl">
+            <h3 class="font-bold text-2xl mb-6">Create Sub-Admin</h3>
+            <form id="form-subadmin" class="space-y-4">
+                <div class="form-control">
+                    <label class="label"><span class="label-text">Name</span></label>
+                    <input type="text" id="subadmin-name" class="input input-bordered focus:border-secondary" required placeholder="John Doe">
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text">Email</span></label>
+                    <input type="email" id="subadmin-email" class="input input-bordered focus:border-secondary" required placeholder="john@example.com">
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text">Password</span></label>
+                    <input type="password" id="subadmin-password" class="input input-bordered focus:border-secondary" required minlength="6">
+                </div>
+                
+                <div class="modal-action mt-6">
+                    <button type="button" class="btn btn-ghost" onclick="document.getElementById('modal-subadmin').close()">Cancel</button>
+                    <button type="submit" class="btn btn-primary bg-white text-black hover:bg-gray-200 border-none px-8">Create</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast toast-end z-[100]"></div>
+
+    <script>
+        // Custom Toast
+        window.showToast = (msg, type='info') => {
+            const container = document.getElementById('toast-container');
+            const alert = document.createElement('div');
+            const alertClass = type === 'error' ? 'alert-error' : type === 'success' ? 'alert-success' : 'alert-info bg-primary text-white border-none';
+            alert.className = `alert ${alertClass} shadow-lg`;
+            alert.innerHTML = `<span>${msg}</span>`;
+            container.appendChild(alert);
+            setTimeout(() => {
+                alert.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+                setTimeout(() => alert.remove(), 300);
+            }, 3000);
+        };
+        window.components = { showToast, formatDate: (dateStr) => new Date(dateStr).toLocaleString() };
+    </script>
+
+    <!-- Promo Code Modal -->
+    <dialog id="modal-promo" class="modal backdrop-blur-sm">
+        <div class="modal-box bg-base-200 border border-white/10 shadow-2xl">
+            <h3 class="font-bold text-2xl mb-6">Generate Promo Code</h3>
+            <form id="form-promo" class="space-y-4">
+                <div class="form-control">
+                    <label class="label"><span class="label-text">Code</span></label>
+                    <input type="text" id="promo-code-val" class="input input-bordered focus:border-secondary" required placeholder="e.g. SUMMER25">
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text">Discount Percentage (%)</span></label>
+                    <input type="number" id="promo-discount" class="input input-bordered focus:border-secondary" required min="1" max="100" placeholder="15">
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text">Max Uses</span></label>
+                    <input type="number" id="promo-max-uses" class="input input-bordered focus:border-secondary" required min="1" value="100">
+                </div>
+                
+                <div class="modal-action mt-6">
+                    <button type="button" class="btn btn-ghost" onclick="document.getElementById('modal-promo').close()">Cancel</button>
+                    <button type="submit" class="btn btn-primary bg-white text-black hover:bg-gray-200 border-none px-8">Save</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <script src="/js/api.js?v=5"></script>
+    <script src="/js/auth.js?v=5"></script>
+    <script src="/js/components.js?v=2"></script>
+    <script src="/js/admin-app.js?v=5"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        requestAnimationFrame(() => {
+            document.body.style.visibility = 'visible';
+            document.body.style.opacity = '1';
+            document.body.style.transition = 'opacity 0.3s';
+        });
+    });
+</script>
+</body>
+</html>
