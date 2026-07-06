@@ -15,6 +15,10 @@ class Settings:
     elif raw_db_url.startswith("postgresql://"):
         raw_db_url = raw_db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
         
+    # asyncpg expects `ssl=require` instead of `sslmode=require`
+    if "sslmode=" in raw_db_url:
+        raw_db_url = raw_db_url.replace("sslmode=", "ssl=")
+        
     DATABASE_URL: str = raw_db_url
 
     # Auth
