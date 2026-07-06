@@ -8,6 +8,9 @@ class Settings:
     raw_db_url = os.getenv("DATABASE_URL", "")
     if not raw_db_url:
         print("WARNING: DATABASE_URL is not set!")
+        
+    # Strip literal quotes just in case they were pasted into Railway's UI
+    raw_db_url = raw_db_url.strip('"').strip("'")
     
     # Auto-fix Railway's standard postgresql:// to use the asyncpg driver
     if raw_db_url.startswith("postgres://"):
